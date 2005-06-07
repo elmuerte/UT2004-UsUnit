@@ -10,7 +10,7 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-	<!-- $Id -->
+	<!-- $Id: UsUnitReplicationInfo.uc,v 1.2 2005/06/07 07:58:52 elmuerte Exp $ -->
 *******************************************************************************/
 
 class UsUnitReplicationInfo extends ReplicationInfo;
