@@ -14,12 +14,12 @@
 
 	Written by: Michiel "El Muerte" Hendriks <elmuerte@drunksnipers.com>
 
-    UsUnit Testing Framework
-    Copyright (C) 2005, Michiel "El Muerte" Hendriks
+	UsUnit Testing Framework
+	Copyright (C) 2005, Michiel "El Muerte" Hendriks
 
-    This program is free software; you can redistribute and/or modify
-    it under the terms of the Lesser Open Unreal Mod License.
-	<!-- $Id: TestCase.uc,v 1.2 2005/06/07 07:58:52 elmuerte Exp $ -->
+	This program is free software; you can redistribute and/or modify
+	it under the terms of the Lesser Open Unreal Mod License.
+	<!-- $Id: TestCase.uc,v 1.3 2005/06/07 21:31:19 elmuerte Exp $ -->
 *******************************************************************************/
 
 class TestCase extends TestBase abstract;
@@ -28,7 +28,7 @@ class TestCase extends TestBase abstract;
 	Perform a test, expression should contain the expression to evaluate. When
 	it results in false the test failed.
 */
-final function Check(bool expression, coerce string message, optional bool bFatal)
+protected final function Check(bool expression, coerce string message, optional bool bFatal)
 {
 	++Checks;
 	Reporter.reportCheck(Checks, message);
@@ -36,7 +36,6 @@ final function Check(bool expression, coerce string message, optional bool bFata
 	{
 		++Failed;
 		Reporter.reportFail(Checks, Failed);
-		//TODO: report
 	}
 	else {
 	   Reporter.reportPass(Checks);
@@ -44,7 +43,7 @@ final function Check(bool expression, coerce string message, optional bool bFata
 }
 
 /** short-hand for signaling the test is done */
-final function Done()
+protected final function Done()
 {
 	TestComplete(self);
 }
