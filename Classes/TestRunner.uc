@@ -6,12 +6,12 @@
 
 	Written by: Michiel "El Muerte" Hendriks <elmuerte@drunksnipers.com>
 
-    UsUnit Testing Framework
-    Copyright (C) 2005, Michiel "El Muerte" Hendriks
+	UsUnit Testing Framework
+	Copyright (C) 2005, Michiel "El Muerte" Hendriks
 
-    This program is free software; you can redistribute and/or modify
-    it under the terms of the Lesser Open Unreal Mod License.
-	<!-- $Id: TestRunner.uc,v 1.2 2005/06/07 07:58:52 elmuerte Exp $ -->
+	This program is free software; you can redistribute and/or modify
+	it under the terms of the Lesser Open Unreal Mod License.
+	<!-- $Id: TestRunner.uc,v 1.3 2005/06/08 20:17:19 elmuerte Exp $ -->
 *******************************************************************************/
 
 class TestRunner extends TestSuiteBase;
@@ -31,12 +31,24 @@ var class<TestReporter> ReporterClass;
 
 function run()
 {
+    log("Starting tests", 'UsUnit');
 	if (TestClasses.length == 0) InitializeTestClasses();
+	Reporter.start();
 	super.run();
 }
 
+protected function internalRun()
+{
+    super.internalRun();
+    if (!bRunning)
+    {
+        Reporter.end();
+        log("Finished running tests", 'UsUnit');
+    }
+}
+
 /** resolve the strings to classnames */
-function InitializeTestClasses()
+protected function InitializeTestClasses()
 {
 	local int i;
 	local class<TestBase> tb;

@@ -9,7 +9,7 @@
 
 	This program is free software; you can redistribute and/or modify
 	it under the terms of the Lesser Open Unreal Mod License.
-	<!-- $Id: TestReporter.uc,v 1.3 2005/06/07 21:31:19 elmuerte Exp $ -->
+	<!-- $Id: TestReporter.uc,v 1.4 2005/06/08 20:17:19 elmuerte Exp $ -->
 *******************************************************************************/
 class TestReporter extends Info config(UsUnit);
 
@@ -17,38 +17,48 @@ class TestReporter extends Info config(UsUnit);
 var protected array< TestBase > Stack;
 
 /** output modules to use */
-var config array<string> OutputClass;
+var config array<string> OutputClasses;
 
 /** list of output modules */
 var array<ReporterOutputModule> OutputModules;
 
 event PreBeginPlay()
 {
-    local int i;
-    local class<ReporterOutputModule> omc;
-    local ReporterOutputModule om;
+	local int i;
+	local class<ReporterOutputModule> omc;
+	local ReporterOutputModule om;
 
-    super.PreBeginPlay();
-    for (i = 0; i < OutputClass.Length; i++)
-    {
-        omc = class<ReporterOutputModule>(DynamicLoadObject(OutputClass[i], class'Class', true));
-        if (omc != none)
-        {
-            om = new(self) omc;
-            OutputModules[OutputModules.length] = om;
-        }
-        else {
-            warn("'"$OutputClass[i]$"' is not a valid ReporterOutputModule class");
-        }
-    }
+	super.PreBeginPlay();
+	for (i = 0; i < OutputClasses.Length; i++)
+	{
+		omc = class<ReporterOutputModule>(DynamicLoadObject(OutputClasses[i], class'Class', true));
+		if (omc != none)
+		{
+			om = new(self) omc;
+			OutputModules[OutputModules.length] = om;
+		}
+		else {
+			warn("'"$OutputClasses[i]$"' is not a valid ReporterOutputModule class");
+		}
+	}
+}
+
+function start()
+{
+	OutputModules[0].start();
+}
+
+function end()
+{
+	OutputModules[0].end();
 }
 
 /** push a test on the stack */
 function push(TestBase item)
 {
-	log(">>>"@"["$string(item.class)$"]"@item.TestName, 'UsUnit');
 	Stack.insert(0, 1);
 	Stack[0] = item;
+	OutputModules[0].testBegin(item); //TODO: improve
 }
 
 /** pop a test from the stack */
@@ -60,24 +70,28 @@ function pop(TestBase item)
 	if (i > 0)
 	{
 		//TODO: report stack corruption
+		// call testEnd for every item
 	}
+	OutputModules[0].testEnd(item); //TODO: improve
 	Stack.remove(0, i+1);
-	log("<<<"@"["$string(item.class)$"]"@item.TestName, 'UsUnit');
 }
 
 function reportCheck(int CheckId, coerce string Message)
 {
-	logf(StrRepeat("  ", stack.length)$"["$string(stack[stack.length-1].class)$"] #"$string(CheckId)$" :"@Message);
+    OutputModules[0].reportCheck(CheckId, Message);
+	//logf(StrRepeat("  ", stack.length)$"["$string(stack[stack.length-1].class)$"] #"$string(CheckId)$" :"@Message);
 }
 
 function reportFail(int CheckId, int FailCount)
 {
-	logf(StrRepeat("  ", stack.length)$"> FAILED");
+    OutputModules[0].reportFail(CheckId, FailCount);
+	//logf(StrRepeat("  ", stack.length)$"> FAILED");
 }
 
 function reportPass(int CheckId)
 {
-	logf(StrRepeat("  ", stack.length)$"> Success");
+    OutputModules[0].reportPass(CheckId);
+	//logf(StrRepeat("  ", stack.length)$"> Success");
 }
 
 protected function logf(coerce string Text)
@@ -92,7 +106,13 @@ final static function string StrRepeat(coerce string str, int count)
 	return res;
 }
 
+final static function string PadLeft(coerce string base, coerce string padchar, int length)
+{
+    while (len(base) < length) base = padchar$base;
+    return base;
+}
+
 defaultproperties
 {
-    OutputClass[0]="UsUnit.Output_HTML"
+	OutputClasses[0]="UsUnit.Output_HTML"
 }

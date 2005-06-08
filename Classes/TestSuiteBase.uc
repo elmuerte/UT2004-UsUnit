@@ -4,12 +4,12 @@
 
 	Written by: Michiel "El Muerte" Hendriks <elmuerte@drunksnipers.com>
 
-    UsUnit Testing Framework
-    Copyright (C) 2005, Michiel "El Muerte" Hendriks
+	UsUnit Testing Framework
+	Copyright (C) 2005, Michiel "El Muerte" Hendriks
 
-    This program is free software; you can redistribute and/or modify
-    it under the terms of the Lesser Open Unreal Mod License.
-	<!-- $Id: TestSuiteBase.uc,v 1.2 2005/06/07 07:58:52 elmuerte Exp $ -->
+	This program is free software; you can redistribute and/or modify
+	it under the terms of the Lesser Open Unreal Mod License.
+	<!-- $Id: TestSuiteBase.uc,v 1.3 2005/06/08 20:17:19 elmuerte Exp $ -->
 *******************************************************************************/
 
 class TestSuiteBase extends TestBase abstract;
@@ -38,7 +38,7 @@ function run()
 	bRunning = true;
 	TestInstances.Length = TestClasses.Length;
 	currentIndex = 0;
-	internalRun();
+	enable('Tick');
 }
 
 /** this function actually does the work */
@@ -55,10 +55,9 @@ protected function internalRun()
 	{
 		//TODO: generate error\warning?
 		++currentIndex;
-		internalRun();
+		enable('Tick');
 		return;
 	}
-	log("+++ Executing test #"$string(currentIndex)@"("$string(getProgress())$"%)", 'UsUnit');
 	if (TestInstances[currentIndex] == none)
 	{
 		TestInstances[currentIndex] = spawn(TestClasses[currentIndex], self);
@@ -89,15 +88,26 @@ protected function completedTest(TestBase Sender)
 		if (bBreakOnFail)
 		{
 			// TODO: warning
+			log("Failed a test, aborting suite");
+			Reporter.pop(Sender);
 			TestComplete(Self);
 			bRunning = false;
 			return;
 		}
 	}
 	Reporter.pop(Sender);
-	log("--- Test #"$string(currentIndex)$" done is "$string(Sender.TestTime)$"s "$string(Sender.getSuccessPct())$"% success", 'UsUnit');
 	++currentIndex;
-	internalRun();
+	enable('Tick');
+}
+
+/**
+    we use the tick event to go to the next test instance, this is to reduce the
+    stack size.
+*/
+event Tick(float Delta)
+{
+    disable('Tick');
+    if (bRunning) internalRun();
 }
 
 /** returns true if the testclass is a valid test class */

@@ -4,15 +4,18 @@
 
 	Written by: Michiel "El Muerte" Hendriks <elmuerte@drunksnipers.com>
 
-    UsUnit Testing Framework
-    Copyright (C) 2005, Michiel "El Muerte" Hendriks
+	UsUnit Testing Framework
+	Copyright (C) 2005, Michiel "El Muerte" Hendriks
 
-    This program is free software; you can redistribute and/or modify
-    it under the terms of the Lesser Open Unreal Mod License.
-	<!-- $Id: TestBase.uc,v 1.2 2005/06/07 07:58:52 elmuerte Exp $ -->
+	This program is free software; you can redistribute and/or modify
+	it under the terms of the Lesser Open Unreal Mod License.
+	<!-- $Id: TestBase.uc,v 1.3 2005/06/08 20:17:19 elmuerte Exp $ -->
 *******************************************************************************/
 
 class TestBase extends Info abstract config(UsUnit);
+
+/** the current version of this test unit */
+var const string USUNIT_VERSION;
 
 /** A short name for this test, used in the output */
 var() const string TestName;
@@ -71,11 +74,16 @@ final function int getNumChecks() { return Checks; }
 /** accessor for the Failed statistics */
 final function int getNumFailed() { return Failed; }
 /** return a percentage of the successful tests */
-final function byte getSuccessPct() { return round((Checks-Failed)/Checks*100); }
+final function byte getSuccessPct() { return round((Checks-Failed)*100/Checks); }
 
 /** initialize some core variables */
 event PreBeginPlay()
 {
 	if (Reporter == none) foreach AllActors(class'TestReporter', Reporter) break;
 	super.PreBeginPlay();
+}
+
+defaultproperties
+{
+    USUNIT_VERSION="0.0.5"
 }
