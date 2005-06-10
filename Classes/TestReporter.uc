@@ -9,7 +9,7 @@
 
 	This program is free software; you can redistribute and/or modify
 	it under the terms of the Lesser Open Unreal Mod License.
-	<!-- $Id: TestReporter.uc,v 1.4 2005/06/08 20:17:19 elmuerte Exp $ -->
+	<!-- $Id: TestReporter.uc,v 1.5 2005/06/10 09:56:21 elmuerte Exp $ -->
 *******************************************************************************/
 class TestReporter extends Info config(UsUnit);
 
@@ -43,60 +43,95 @@ event PreBeginPlay()
 	}
 }
 
+/** called when the total test starts */
 function start()
 {
-	OutputModules[0].start();
+    local int i;
+    Stack.length = 0;
+    for (i = 0; i < OutputModules.length; i++)
+        OutputModules[0].start();
 }
 
+/** called when all tests are finish */
 function end()
 {
-	OutputModules[0].end();
+	local int i;
+    for (i = 0; i < OutputModules.length; i++)
+        OutputModules[0].end();
+    if (stack.length > 0)
+    {
+        reportError(self, "Stack corruption, stack not empty at the end of the test cycle");
+        return;
+    }
 }
 
 /** push a test on the stack */
 function push(TestBase item)
 {
+    local int i;
 	Stack.insert(0, 1);
 	Stack[0] = item;
-	OutputModules[0].testBegin(item); //TODO: improve
+    for (i = 0; i < OutputModules.length; i++)
+        OutputModules[0].testBegin(item);
 }
 
 /** pop a test from the stack */
 function pop(TestBase item)
 {
-	local int i;
-	i = 0;
-	while (Stack[i] != item) i++;
-	if (i > 0)
+    if (stack.length == 0)
+    {
+        reportError(self, "Stack corruption, tried to pop "$string(item)$" off an empty stack");
+        return;
+    }
+	while (Stack[0] != item)
 	{
-		//TODO: report stack corruption
-		// call testEnd for every item
+        reportError(self, "Stack corruption, forced pop of "$string(Stack[0]));
+        _pop();
+
+        if (stack.length == 0)
+        {
+            reportError(self, "Stack corruption, tried to pop "$string(item)$" off an empty stack");
+            return;
+        }
 	}
-	OutputModules[0].testEnd(item); //TODO: improve
-	Stack.remove(0, i+1);
+	_pop();
+}
+
+/** the actual pop; this assumes item is on top of the stack  */
+protected function _pop()
+{
+    local int i;
+    for (i = 0; i < OutputModules.length; i++)
+        OutputModules[0].testEnd(Stack[0]);
+	Stack.remove(0, 1);
 }
 
 function reportCheck(int CheckId, coerce string Message)
 {
-    OutputModules[0].reportCheck(CheckId, Message);
-	//logf(StrRepeat("  ", stack.length)$"["$string(stack[stack.length-1].class)$"] #"$string(CheckId)$" :"@Message);
+	local int i;
+    for (i = 0; i < OutputModules.length; i++)
+        OutputModules[0].reportCheck(CheckId, Message);
 }
 
 function reportFail(int CheckId, int FailCount)
 {
-    OutputModules[0].reportFail(CheckId, FailCount);
-	//logf(StrRepeat("  ", stack.length)$"> FAILED");
+	local int i;
+    for (i = 0; i < OutputModules.length; i++)
+        OutputModules[0].reportFail(CheckId, FailCount);
 }
 
 function reportPass(int CheckId)
 {
-    OutputModules[0].reportPass(CheckId);
-	//logf(StrRepeat("  ", stack.length)$"> Success");
+	local int i;
+    for (i = 0; i < OutputModules.length; i++)
+        OutputModules[0].reportPass(CheckId);
 }
 
-protected function logf(coerce string Text)
+function reportError(Object Sender, coerce string Message)
 {
-	log(Text, 'UsUnit');
+    local int i;
+    for (i = 0; i < OutputModules.length; i++)
+        OutputModules[0].reportError(Sender, Message);
 }
 
 final static function string StrRepeat(coerce string str, int count)
@@ -108,8 +143,8 @@ final static function string StrRepeat(coerce string str, int count)
 
 final static function string PadLeft(coerce string base, coerce string padchar, int length)
 {
-    while (len(base) < length) base = padchar$base;
-    return base;
+	while (len(base) < length) base = padchar$base;
+	return base;
 }
 
 defaultproperties

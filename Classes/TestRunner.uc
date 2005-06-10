@@ -11,7 +11,7 @@
 
 	This program is free software; you can redistribute and/or modify
 	it under the terms of the Lesser Open Unreal Mod License.
-	<!-- $Id: TestRunner.uc,v 1.3 2005/06/08 20:17:19 elmuerte Exp $ -->
+	<!-- $Id: TestRunner.uc,v 1.4 2005/06/10 09:56:21 elmuerte Exp $ -->
 *******************************************************************************/
 
 class TestRunner extends TestSuiteBase;
@@ -31,7 +31,7 @@ var class<TestReporter> ReporterClass;
 
 function run()
 {
-    log("Starting tests", 'UsUnit');
+	log("Starting tests", 'UsUnit');
 	if (TestClasses.length == 0) InitializeTestClasses();
 	Reporter.start();
 	super.run();
@@ -39,12 +39,12 @@ function run()
 
 protected function internalRun()
 {
-    super.internalRun();
-    if (!bRunning)
-    {
-        Reporter.end();
-        log("Finished running tests", 'UsUnit');
-    }
+	super.internalRun();
+	if (!bRunning)
+	{
+		Reporter.end();
+		log("Finished running tests", 'UsUnit');
+	}
 }
 
 /** resolve the strings to classnames */
@@ -58,7 +58,7 @@ protected function InitializeTestClasses()
 		if (tb != none) TestClasses[TestClasses.length] = tb;
 		else {
 			log("'"$Tests[i]$"' is not a valid TestCase or TestSuite class", 'UsUnit');
-			// warn, failed to load testclass: Tests[i]
+			reporter.reportError(self, "'"$Tests[i]$"' is not a valid TestCase or TestSuite class");
 		}
 	}
 }

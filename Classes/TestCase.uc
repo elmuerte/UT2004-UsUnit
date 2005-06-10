@@ -19,7 +19,7 @@
 
 	This program is free software; you can redistribute and/or modify
 	it under the terms of the Lesser Open Unreal Mod License.
-	<!-- $Id: TestCase.uc,v 1.3 2005/06/07 21:31:19 elmuerte Exp $ -->
+	<!-- $Id: TestCase.uc,v 1.4 2005/06/10 09:56:21 elmuerte Exp $ -->
 *******************************************************************************/
 
 class TestCase extends TestBase abstract;
@@ -47,3 +47,4 @@ protected final function Done()
 {
 	TestComplete(self);
 }
+

@@ -9,21 +9,28 @@
 
 	This program is free software; you can redistribute and/or modify
 	it under the terms of the Lesser Open Unreal Mod License.
-	<!-- $Id: ReporterOutputModule.uc,v 1.1 2005/06/07 21:32:04 elmuerte Exp $ -->
+	<!-- $Id: ReporterOutputModule.uc,v 1.2 2005/06/10 09:56:21 elmuerte Exp $ -->
 *******************************************************************************/
 
 class ReporterOutputModule extends Object within TestReporter;
 
+/** test cycle begin */
 function start();
+/** test cycle end */
 function end();
 
+/** a new TestCase or TestSuite */
 function testBegin(TestBase test);
+/** TestCase or TestSuite was completed */
 function testEnd(TestBase test);
 
+/** a check() is performed */
 function reportCheck(int CheckId, coerce string Message);
+/** the check failed */
 function reportFail(int CheckId, int FailCount);
+/** the check passed */
 function reportPass(int CheckId);
 
-function reportFatalError(TestBase sender, coerce string msg);
-function reportWarning(TestSuiteBase sender, coerce string msg);
-function reportInfo(TestSuiteBase sender, coerce string msg);
+/** an error message */
+function reportError(Object Sender, coerce string Message);
+

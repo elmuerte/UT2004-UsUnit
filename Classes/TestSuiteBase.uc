@@ -9,7 +9,7 @@
 
 	This program is free software; you can redistribute and/or modify
 	it under the terms of the Lesser Open Unreal Mod License.
-	<!-- $Id: TestSuiteBase.uc,v 1.3 2005/06/08 20:17:19 elmuerte Exp $ -->
+	<!-- $Id: TestSuiteBase.uc,v 1.4 2005/06/10 09:56:21 elmuerte Exp $ -->
 *******************************************************************************/
 
 class TestSuiteBase extends TestBase abstract;
@@ -54,6 +54,7 @@ protected function internalRun()
 	if (!isValidTestClass(TestClasses[currentIndex]))
 	{
 		//TODO: generate error\warning?
+		Reporter.reportError(self, TestClasses[currentIndex]@"is not a valid test class");
 		++currentIndex;
 		enable('Tick');
 		return;
@@ -101,13 +102,13 @@ protected function completedTest(TestBase Sender)
 }
 
 /**
-    we use the tick event to go to the next test instance, this is to reduce the
-    stack size.
+	we use the tick event to go to the next test instance, this is to reduce the
+	stack size.
 */
 event Tick(float Delta)
 {
-    disable('Tick');
-    if (bRunning) internalRun();
+	disable('Tick');
+	if (bRunning) internalRun();
 }
 
 /** returns true if the testclass is a valid test class */
