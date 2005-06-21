@@ -9,7 +9,7 @@
 
 	This program is free software; you can redistribute and/or modify
 	it under the terms of the Lesser Open Unreal Mod License.
-	<!-- $Id: TestSuiteBase.uc,v 1.4 2005/06/10 09:56:21 elmuerte Exp $ -->
+	<!-- $Id: TestSuiteBase.uc,v 1.5 2005/06/21 20:19:30 elmuerte Exp $ -->
 *******************************************************************************/
 
 class TestSuiteBase extends TestBase abstract;
@@ -26,6 +26,8 @@ var protected array<TestBase> TestInstances;
 var protected int currentIndex;
 /** set to true when this suite is active */
 var protected bool bRunning;
+/** test suite was aborted because */
+var protected bool bAborted;
 
 /** runs the test suites. */
 function run()
@@ -36,6 +38,7 @@ function run()
 		return;
 	}
 	bRunning = true;
+	bAborted = false;
 	TestInstances.Length = TestClasses.Length;
 	currentIndex = 0;
 	enable('Tick');
@@ -89,7 +92,8 @@ protected function completedTest(TestBase Sender)
 		if (bBreakOnFail)
 		{
 			// TODO: warning
-			log("Failed a test, aborting suite");
+			log("Failed a test, aborting suite", 'UsUnit');
+			bAborted = true;
 			Reporter.pop(Sender);
 			TestComplete(Self);
 			bRunning = false;
@@ -123,6 +127,9 @@ function byte getProgress()
 {
 	return currentIndex / TestClasses.Length;
 }
+
+function bool isRunning() { return bRunning; }
+function bool isAborted() { return bAborted; }
 
 defaultproperties
 {
