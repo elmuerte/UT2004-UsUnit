@@ -1,15 +1,15 @@
 /*******************************************************************************
-	TestReported
-	Generates the reports
+    TestReported
+    Generates the reports
 
-	Written by: Michiel "El Muerte" Hendriks <elmuerte@drunksnipers.com>
+    Written by: Michiel "El Muerte" Hendriks <elmuerte@drunksnipers.com>
 
-	UsUnit Testing Framework
-	Copyright (C) 2005, Michiel "El Muerte" Hendriks
+    UsUnit Testing Framework
+    Copyright (C) 2005, Michiel "El Muerte" Hendriks
 
-	This program is free software; you can redistribute and/or modify
-	it under the terms of the Lesser Open Unreal Mod License.
-	<!-- $Id: TestReporter.uc,v 1.5 2005/06/10 09:56:21 elmuerte Exp $ -->
+    This program is free software; you can redistribute and/or modify
+    it under the terms of the Lesser Open Unreal Mod License.
+    <!-- $Id: TestReporter.uc,v 1.6 2005/06/24 16:28:58 elmuerte Exp $ -->
 *******************************************************************************/
 class TestReporter extends Info config(UsUnit);
 
@@ -19,28 +19,34 @@ var protected array< TestBase > Stack;
 /** output modules to use */
 var config array<string> OutputClasses;
 
+/** create log errors when a check fails, can be used by program to extract and find checks that failed */
+var config bool bGenerateLogErrors;
+
 /** list of output modules */
 var array<ReporterOutputModule> OutputModules;
 
+/** will be used to report the file+check line when the last check failed */
+var protected string LastCheckMsg;
+
 event PreBeginPlay()
 {
-	local int i;
-	local class<ReporterOutputModule> omc;
-	local ReporterOutputModule om;
+    local int i;
+    local class<ReporterOutputModule> omc;
+    local ReporterOutputModule om;
 
-	super.PreBeginPlay();
-	for (i = 0; i < OutputClasses.Length; i++)
-	{
-		omc = class<ReporterOutputModule>(DynamicLoadObject(OutputClasses[i], class'Class', true));
-		if (omc != none)
-		{
-			om = new(self) omc;
-			OutputModules[OutputModules.length] = om;
-		}
-		else {
-			warn("'"$OutputClasses[i]$"' is not a valid ReporterOutputModule class");
-		}
-	}
+    super.PreBeginPlay();
+    for (i = 0; i < OutputClasses.Length; i++)
+    {
+        omc = class<ReporterOutputModule>(DynamicLoadObject(OutputClasses[i], class'Class', true));
+        if (omc != none)
+        {
+            om = new(self) omc;
+            OutputModules[OutputModules.length] = om;
+        }
+        else {
+            warn("'"$OutputClasses[i]$"' is not a valid ReporterOutputModule class");
+        }
+    }
 }
 
 /** called when the total test starts */
@@ -55,7 +61,7 @@ function start()
 /** called when all tests are finish */
 function end()
 {
-	local int i;
+    local int i;
     for (i = 0; i < OutputModules.length; i++)
         OutputModules[0].end();
     if (stack.length > 0)
@@ -69,8 +75,8 @@ function end()
 function push(TestBase item)
 {
     local int i;
-	Stack.insert(0, 1);
-	Stack[0] = item;
+    Stack.insert(0, 1);
+    Stack[0] = item;
     for (i = 0; i < OutputModules.length; i++)
         OutputModules[0].testBegin(item);
 }
@@ -83,8 +89,8 @@ function pop(TestBase item)
         reportError(self, "Stack corruption, tried to pop "$string(item)$" off an empty stack");
         return;
     }
-	while (Stack[0] != item)
-	{
+    while (Stack[0] != item)
+    {
         reportError(self, "Stack corruption, forced pop of "$string(Stack[0]));
         _pop();
 
@@ -93,8 +99,8 @@ function pop(TestBase item)
             reportError(self, "Stack corruption, tried to pop "$string(item)$" off an empty stack");
             return;
         }
-	}
-	_pop();
+    }
+    _pop();
 }
 
 /** the actual pop; this assumes item is on top of the stack  */
@@ -103,26 +109,32 @@ protected function _pop()
     local int i;
     for (i = 0; i < OutputModules.length; i++)
         OutputModules[0].testEnd(Stack[0]);
-	Stack.remove(0, 1);
+    Stack.remove(0, 1);
 }
 
 function reportCheck(int CheckId, coerce string Message)
 {
-	local int i;
+    local int i;
+    LastCheckMsg = Message;
     for (i = 0; i < OutputModules.length; i++)
         OutputModules[0].reportCheck(CheckId, Message);
 }
 
 function reportFail(int CheckId, int FailCount)
 {
-	local int i;
+    local int i;
+    i = InStr(LastCheckMsg, chr(3));
+    if ((i > -1) && (bGenerateLogErrors))
+    {
+       Log(Mid(LastCheckMsg, i+1)$" : UsUnit Check failed: "$Left(LastCheckMsg, i), 'Error');
+    }
     for (i = 0; i < OutputModules.length; i++)
         OutputModules[0].reportFail(CheckId, FailCount);
 }
 
 function reportPass(int CheckId)
 {
-	local int i;
+    local int i;
     for (i = 0; i < OutputModules.length; i++)
         OutputModules[0].reportPass(CheckId);
 }
@@ -136,18 +148,19 @@ function reportError(Object Sender, coerce string Message)
 
 final static function string StrRepeat(coerce string str, int count)
 {
-	local string res;
-	while (--count >= 0) res $= str;
-	return res;
+    local string res;
+    while (--count >= 0) res $= str;
+    return res;
 }
 
 final static function string PadLeft(coerce string base, coerce string padchar, int length)
 {
-	while (len(base) < length) base = padchar$base;
-	return base;
+    while (len(base) < length) base = padchar$base;
+    return base;
 }
 
 defaultproperties
 {
-	OutputClasses[0]="UsUnit.Output_HTML"
+    bGenerateLogErrors=true
+    OutputClasses[0]="UsUnit.Output_HTML"
 }
