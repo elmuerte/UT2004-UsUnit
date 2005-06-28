@@ -9,7 +9,7 @@
 
 	This program is free software; you can redistribute and/or modify
 	it under the terms of the Lesser Open Unreal Mod License.
-	<!-- $Id: usugui_MainPage.uc,v 1.4 2005/06/27 10:07:27 elmuerte Exp $ -->
+	<!-- $Id: usugui_MainPage.uc,v 1.5 2005/06/28 09:44:58 elmuerte Exp $ -->
 *******************************************************************************/
 
 class usugui_MainPage extends FloatingWindow;
@@ -35,71 +35,84 @@ event HandleParameters(string Param1, string Param2)
 
 function bool OnstartClick(GUIComponent Sender)
 {
-    ebStatsChecks.SetText("0");
-    ebStatsFails.SetText("0");
-    ebStatsTime.SetText("0");
-    pbGlobal.value = 0;
-    pbGlobal.BarColor = clGreen;
-    pbLocal.value = 0;
-    pbLocal.BarColor = clGreen;
-    ebCurrentTest.SetText("");
-    tbLog.SetContent("");
-
-    DisableComponent(btnStart);
-    RI.StartTest();
-    return true;
+	RI.StartTest();
+	return true;
 }
 
 ///// output modules forwards
 
 function start()
 {
+    DisableComponent(btnStart);
+    ebStatsChecks.SetText("0");
+	ebStatsFails.SetText("0");
+	ebStatsTime.SetText("0");
+	pbGlobal.value = 0;
+	pbGlobal.BarColor = clGreen;
+	pbLocal.value = 0;
+	pbLocal.BarColor = clGreen;
+	ebCurrentTest.SetText("");
+	tbLog.SetContent("");
+	pbLocal.value = 10;
 }
 
 function end()
 {
-    pbGlobal.value = 100;
-    EnableComponent(btnStart);
+    ebCurrentTest.SetText("");
+	pbGlobal.value = 100;
+	EnableComponent(btnStart);
 }
 
 // name + progress
-function testBegin(TestBase test)
+function testBegin(string test)
 {
-    pbLocal.BarColor = clGreen;
-    pbLocal.value = 0;
+    tbLog.AddText(">"@test);
+    ebCurrentTest.SetText(test);
+	pbLocal.BarColor = clGreen;
+	pbLocal.value = 0;
 }
 
-function testEnd(TestBase test)
+function testEnd(string test)
 {
-    pbLocal.value = 100;
+	pbLocal.value = 100;
+	tbLog.AddText("<"@test);
+	tbLog.AddText(" ");
 }
 
 function reportCheck(int CheckId, coerce string Message)
 {
-    ebStatsChecks.SetText(string(int(ebStatsChecks.GetText())+1));
-    tbLog.AddText(Message);
+	ebStatsChecks.SetText(string(int(ebStatsChecks.GetText())+1));
+	tbLog.AddText(Message);
+	tbLog.MyScrollText.end();
+}
+
+function reportLocalProgress(byte progress)
+{
+    pbLocal.value = progress;
 }
 
 function reportFail(int CheckId, int FailCount)
 {
-    pbLocal.BarColor = clRed;
-    pbGlobal.BarColor = clOrange;
-    ebStatsFails.SetText(string(int(ebStatsFails.GetText())+1));
+    tbLog.AddText("-> FAILED!");
+	pbLocal.BarColor = clRed;
+	pbGlobal.BarColor = clOrange;
+	ebStatsFails.SetText(string(int(ebStatsFails.GetText())+1));
 }
 
 function reportPass(int CheckId)
 {
+    tbLog.AddText("-> pass");
 }
 
-function reportError(Object Sender, coerce string Message)
+function reportError(string Sender, coerce string Message)
 {
 }
 
 defaultproperties
 {
-	clGreen=(R=0,G=255,B=0)
-	clOrange=(R=255,G=128,B=0)
-	clRed=(R=255,G=0,B=0)
+	clGreen=(R=0,G=255,B=0,A=255)
+	clOrange=(R=255,G=128,B=0,A=255)
+	clRed=(R=255,G=0,B=0,A=255)
 
 	Begin Object Class=GUIProgressBar Name=x_pbGlobal
 		Caption="Overal progress:"

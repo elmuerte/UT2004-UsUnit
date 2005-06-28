@@ -10,7 +10,7 @@
 
 	This program is free software; you can redistribute and/or modify
 	it under the terms of the Lesser Open Unreal Mod License.
-	<!-- $Id: UsUnitReplicationInfo.uc,v 1.4 2005/06/27 10:07:27 elmuerte Exp $ -->
+	<!-- $Id: UsUnitReplicationInfo.uc,v 1.5 2005/06/28 09:44:58 elmuerte Exp $ -->
 *******************************************************************************/
 
 class UsUnitReplicationInfo extends ReplicationInfo;
@@ -26,7 +26,9 @@ var TestRunner Runner;
 replication
 {
 	reliable if (Role == ROLE_Authority)
-		OpenGUI;
+		OpenGUI,
+        start, end, testBegin, testEnd, reportCheck, reportLocalProgress, reportFail,
+        reportPass, reportError;
 	reliable if (Role < ROLE_Authority)
 		SetGUIPage, StartTest, ClientHookOutputModule;
 }
@@ -37,71 +39,71 @@ replication
 */
 function Initialize(bool ReadOnly)
 {
-    log("Initialize"@ReadOnly, name);
+	log("Initialize"@ReadOnly, name);
 	OpenGUI(ReadOnly);
 }
 
 simulated function OpenGUI(bool ReadOnly)
 {
-    log("OpenGUI"@ReadOnly, name);
+	log("OpenGUI"@ReadOnly, name);
 	PlayerController(Owner).ClientOpenMenu(MainPageClass, ReadOnly);
 }
 
 /** set the handle to our GUI page */
 simulated function SetGUIPage(usugui_MainPage Page)
 {
-    log("SetGUIPage"@Page, name);
+	log("SetGUIPage"@Page, name);
 	usuPage = Page;
 }
 
 /** start the testing */
 simulated function StartTest()
 {
-    local float OldfDelayedStart;
-    log("StartTest", name);
+	local float OldfDelayedStart;
+	log("StartTest", name);
 
-    if (Runner == none) // find an existing runner, mostlikely not present
-        foreach AllActors(class'TestRunner', Runner) break;
+	if (Runner == none) // find an existing runner, mostlikely not present
+		foreach AllActors(class'TestRunner', Runner) break;
 
-    if (Runner == none)
-    {
-        //TODO: make class configurable
-        OldfDelayedStart = class'TestRunner'.default.fDelayedStart;
-        class'TestRunner'.default.fDelayedStart = -1;
-        Runner = spawn(class'TestRunner');
-        class'TestRunner'.default.fDelayedStart = OldfDelayedStart;
-    }
-    HookOutputModule();
-    Runner.run();
+	if (Runner == none)
+	{
+		//TODO: make class configurable
+		OldfDelayedStart = class'TestRunner'.default.fDelayedStart;
+		class'TestRunner'.default.fDelayedStart = -1;
+		Runner = spawn(class'TestRunner');
+		class'TestRunner'.default.fDelayedStart = OldfDelayedStart;
+	}
+	HookOutputModule();
+	Runner.run();
 }
 
 simulated function ClientHookOutputModule()
 {
-    HookOutputModule();
+	HookOutputModule();
 }
 
 function HookOutputModule()
 {
-    local TestReporter Reporter;
-    log("HookOutputModule", name);
-    // add our reporter
-    if (OutputModule == none)
-    {
-        foreach AllActors(class'TestReporter', Reporter) break;
-        if (Reporter != none)
-            OutputModule = Output_MutatorGUI(Reporter.AddOutputModule(OutputModuleClass));
-    }
+	local TestReporter Reporter;
+	log("HookOutputModule", name);
+	// add our reporter
+	if (OutputModule == none)
+	{
+		foreach AllActors(class'TestReporter', Reporter) break;
+		if (Reporter != none)
+			OutputModule = Output_MutatorGUI(Reporter.AddOutputModule(OutputModuleClass));
+	}
 
-    OutputModule.RI = self;
+	OutputModule.RI = self;
 }
 
 event Destroyed()
 {
-    if (OutputModule != none)
-    {
-        OutputModule.RI = none;
-        OutputModule = none;
-    }
+	if (OutputModule != none)
+	{
+		OutputModule.RI = none;
+		OutputModule = none;
+	}
 }
 
 ///// output module forwards
@@ -109,43 +111,48 @@ event Destroyed()
 
 simulated function start()
 {
-    usuPage.start();
+	usuPage.start();
 }
 
 simulated function end()
 {
-    usuPage.end();
+	usuPage.end();
 }
 
-simulated function testBegin(TestBase test)
+simulated function testBegin(string test)
 {
-    usuPage.pbGlobal.value = Runner.getProgress();
-    usuPage.testBegin(test);
+	usuPage.pbGlobal.value = Runner.getProgress();
+	usuPage.testBegin(test);
 }
 
-simulated function testEnd(TestBase test)
+simulated function testEnd(string test)
 {
-    usuPage.testEnd(test);
+	usuPage.testEnd(test);
 }
 
 simulated function reportCheck(int CheckId, coerce string Message)
 {
-    usuPage.reportCheck(CheckId, Message);
+	usuPage.reportCheck(CheckId, Message);
+}
+
+simulated function reportLocalProgress(byte progress)
+{
+    usuPage.reportLocalProgress(progress);
 }
 
 simulated function reportFail(int CheckId, int FailCount)
 {
-    usuPage.reportFail(CheckId, FailCount);
+	usuPage.reportFail(CheckId, FailCount);
 }
 
 simulated function reportPass(int CheckId)
 {
-    usuPage.reportPass(CheckId);
+	usuPage.reportPass(CheckId);
 }
 
-simulated function reportError(Object Sender, coerce string Message)
+simulated function reportError(string Sender, coerce string Message)
 {
-    usuPage.reportError(Sender, Message);
+	usuPage.reportError(Sender, Message);
 }
 
 defaultproperties
