@@ -10,7 +10,7 @@
 
 	This program is free software; you can redistribute and/or modify
 	it under the terms of the Lesser Open Unreal Mod License.
-	<!-- $Id: Output_MutatorGUI.uc,v 1.2 2005/06/28 09:44:58 elmuerte Exp $ -->
+	<!-- $Id: Output_MutatorGUI.uc,v 1.3 2005/07/20 11:46:18 elmuerte Exp $ -->
 *******************************************************************************/
 
 class Output_MutatorGUI extends ReporterOutputModule;
@@ -39,8 +39,11 @@ function testEnd(TestBase test)
 
 function reportCheck(int CheckId, coerce string Message)
 {
-    RI.reportLocalProgress(Stack[0].getProgress());
+    local string file;
+	RI.reportLocalProgress(Stack[0].getProgress());
+	Divide(message, chr(3), message, file);
 	RI.reportCheck(CheckId, Message);
+	//TODO: report file
 }
 
 function reportFail(int CheckId, int FailCount)

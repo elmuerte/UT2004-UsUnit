@@ -9,19 +9,21 @@
 
 	This program is free software; you can redistribute and/or modify
 	it under the terms of the Lesser Open Unreal Mod License.
-	<!-- $Id: usugui_MainPage.uc,v 1.5 2005/06/28 09:44:58 elmuerte Exp $ -->
+	<!-- $Id: usugui_MainPage.uc,v 1.6 2005/07/20 11:46:18 elmuerte Exp $ -->
 *******************************************************************************/
 
 class usugui_MainPage extends FloatingWindow;
 
 var automated GUIButton btnStart, btnConfig;
 var automated GUIProgressBar pbGlobal, pbLocal;
-var automated GUIScrollTextBox tbLog;
 var automated moEditBox ebCurrentTest, ebStatsChecks, ebStatsFails, ebStatsTime;
+var automated GUITreeListBoxEx tlResults;
 
 var color clGreen, clOrange, clRed;
 
 var UsUnitReplicationInfo RI;
+
+var protected array<int> nodeStack;
 
 event HandleParameters(string Param1, string Param2)
 {
@@ -43,8 +45,8 @@ function bool OnstartClick(GUIComponent Sender)
 
 function start()
 {
-    DisableComponent(btnStart);
-    ebStatsChecks.SetText("0");
+	DisableComponent(btnStart);
+	ebStatsChecks.SetText("0");
 	ebStatsFails.SetText("0");
 	ebStatsTime.SetText("0");
 	pbGlobal.value = 0;
@@ -52,13 +54,13 @@ function start()
 	pbLocal.value = 0;
 	pbLocal.BarColor = clGreen;
 	ebCurrentTest.SetText("");
-	tbLog.SetContent("");
 	pbLocal.value = 10;
+	tlResults.List.Clear();
 }
 
 function end()
 {
-    ebCurrentTest.SetText("");
+	ebCurrentTest.SetText("");
 	pbGlobal.value = 100;
 	EnableComponent(btnStart);
 }
@@ -66,8 +68,13 @@ function end()
 // name + progress
 function testBegin(string test)
 {
-    tbLog.AddText(">"@test);
-    ebCurrentTest.SetText(test);
+	local int idx;
+	if (nodeStack.length > 0) idx = tlResults.listex.AddChild(test, "", nodeStack[0], true);
+	else idx = tlResults.listex.AddChild(test, "", -1, true);
+	nodeStack.insert(0, 1);
+	nodeStack[0] = idx;
+
+	ebCurrentTest.SetText(test);
 	pbLocal.BarColor = clGreen;
 	pbLocal.value = 0;
 }
@@ -75,25 +82,27 @@ function testBegin(string test)
 function testEnd(string test)
 {
 	pbLocal.value = 100;
-	tbLog.AddText("<"@test);
-	tbLog.AddText(" ");
+	nodeStack.remove(0, 1);
 }
 
 function reportCheck(int CheckId, coerce string Message)
 {
+	local int idx;
 	ebStatsChecks.SetText(string(int(ebStatsChecks.GetText())+1));
-	tbLog.AddText(Message);
-	tbLog.MyScrollText.end();
+	idx = tlResults.listex.AddChild(Message, "-1", nodeStack[0], true, string(CheckId));
+	nodeStack.insert(0, 1);
+	nodeStack[0] = idx;
 }
 
 function reportLocalProgress(byte progress)
 {
-    pbLocal.value = progress;
+	pbLocal.value = progress;
 }
 
 function reportFail(int CheckId, int FailCount)
 {
-    tbLog.AddText("-> FAILED!");
+	tlResults.list.SetValueAtIndex(nodeStack[0], "0");
+	nodeStack.remove(0, 1);
 	pbLocal.BarColor = clRed;
 	pbGlobal.BarColor = clOrange;
 	ebStatsFails.SetText(string(int(ebStatsFails.GetText())+1));
@@ -101,7 +110,8 @@ function reportFail(int CheckId, int FailCount)
 
 function reportPass(int CheckId)
 {
-    tbLog.AddText("-> pass");
+	tlResults.list.SetValueAtIndex(nodeStack[0], "1");
+	nodeStack.remove(0, 1);
 }
 
 function reportError(string Sender, coerce string Message)
@@ -221,8 +231,7 @@ defaultproperties
 	End Object
 	ebStatsTime=x_ebStatsTime
 
-	Begin Object Class=GUIScrollTextBox Name=x_tbLog
-		bNoTeletype=true
+	Begin Object Class=GUITreeListBoxEx Name=x_tlResults
 		bVisibleWhenEmpty=true
 		WinWidth=0.960000
 		WinHeight=0.436302
@@ -230,7 +239,7 @@ defaultproperties
 		WinTop=0.500000
 		FontScale=FNS_Small
 	End Object
-	tbLog=x_tbLog
+	tlResults=x_tlResults
 
 
 	WindowName="UsUnit"
