@@ -9,7 +9,7 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: usugui_MainPage.uc,v 1.7 2005/07/22 16:21:16 elmuerte Exp $ -->
+    <!-- $Id: usugui_MainPage.uc,v 1.8 2005/07/23 12:49:32 elmuerte Exp $ -->
 *******************************************************************************/
 
 class usugui_MainPage extends FloatingWindow;
@@ -83,6 +83,7 @@ function testBegin(string test)
     local int idx;
     if (nodeStack.length > 0) idx = tlResults.listex.AddChild(test, "-1", nodeStack[0], true);
     else idx = tlResults.listex.AddChild(test, "-1", -1, true);
+    tlResults.list.End();
     nodeStack.insert(0, 1);
     nodeStack[0] = idx;
 
@@ -102,6 +103,7 @@ function reportCheck(int CheckId, coerce string Message)
     local int idx;
     ebStatsChecks.SetText(string(int(ebStatsChecks.GetText())+1));
     idx = tlResults.listex.AddChild(Message, "-1", nodeStack[0], true, string(CheckId));
+    tlResults.list.End();
     nodeStack.insert(0, 1);
     nodeStack[0] = idx;
 }

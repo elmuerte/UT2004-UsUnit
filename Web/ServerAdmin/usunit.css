@@ -1,0 +1,86 @@
+BODY {
+	background-color: #F2F2F2;
+	font-family: sans-serif;
+	font-size: 12px;
+	color: black;	
+	padding: 5px;
+}
+
+DIV.menu {
+	background-color: silver;
+	border: 2px solid gray;
+}
+
+DIV.menu H1 {
+	margin-top: 0px;
+	margin-bottom: 0px;
+	background-color: gray;
+	font-size: 14px;
+	font-weight: bold;
+	padding: 2px;
+}
+
+DIV.menu UL {
+	background-color: silver;
+	margin: 2px;
+	margin-left: 20px;
+	padding: 0px;
+}
+
+DIV.menu LI {
+	list-style: square;
+	padding: 0px;
+	margin: 0px;
+}
+
+DIV.menu A {
+	color: black;
+	text-decoration: none;
+}
+
+DIV.menu A:Hover {
+	text-decoration: underline;
+}
+
+H1 {
+	margin-top: 0px;
+	font-size: 20px;
+}
+
+LEGEND {
+	border: 1px solid gray;
+	padding: 2px;
+	margin: 0px;	
+}
+
+fieldset {
+	border: 2px solid gray;
+}
+
+DIV.frame {
+	background-color: silver;
+	border: 2px solid gray;
+	margin-bottom: 10px;
+	padding: 2px;
+}
+
+H2 {
+	margin-top: 0px;
+	margin-bottom: 0px;
+	background-color: gray;
+	font-size: 16px;
+	font-weight: bold;
+	padding: 2px 2px 0px 4px;
+}
+
+FORM {
+	margin: 0px;
+}
+
+A {
+	color: blue;
+}
+
+A:Visited {
+	color: navy;
+}
