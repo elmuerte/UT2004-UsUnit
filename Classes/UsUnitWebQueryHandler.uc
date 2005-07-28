@@ -9,7 +9,7 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: UsUnitWebQueryHandler.uc,v 1.1 2005/07/23 12:49:32 elmuerte Exp $ -->
+    <!-- $Id: UsUnitWebQueryHandler.uc,v 1.2 2005/07/28 16:06:11 elmuerte Exp $ -->
 *******************************************************************************/
 
 class UsUnitWebQueryHandler extends xWebQueryHandler;
@@ -22,14 +22,14 @@ function bool Query(WebRequest Request, WebResponse Response)
     {
         case DefaultPage:
             DefSubst(Request, Response);
-        	ShowPage(Response, DefaultPage);
+            ShowPage(Response, DefaultPage);
             return true;
         case uri_menu:
             DefSubst(Request, Response);
-        	ShowPage(Response, uri_menu);
+            ShowPage(Response, uri_menu);
             return true;
         case uri_css:
-        	Response.SendCachedFile(Path$"/"$uri_css, "text/css");
+            Response.SendCachedFile(Path$"/"$uri_css, "text/css");
             return true;
         case uri_controls:
             QueryControls(Request, Response);
@@ -42,14 +42,14 @@ function DefSubst(WebRequest Request, WebResponse Response)
 {
     Response.Subst("uri_css",       uri_css);
     Response.Subst("uri_menu",      uri_menu);
-	Response.Subst("uri_controls", 	uri_controls);
-	Response.Subst("VERSION",       class'TestBase'.default.USUNIT_VERSION);
+    Response.Subst("uri_controls",  uri_controls);
+    Response.Subst("VERSION",       class'TestBase'.default.USUNIT_VERSION);
 }
 
 function QueryControls(WebRequest Request, WebResponse Response)
 {
     DefSubst(Request, Response);
-   	ShowPage(Response, uri_controls);
+    ShowPage(Response, uri_controls);
 }
 
 defaultproperties

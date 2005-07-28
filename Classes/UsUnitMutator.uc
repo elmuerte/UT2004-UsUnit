@@ -10,7 +10,7 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: UsUnitMutator.uc,v 1.6 2005/07/22 19:55:50 elmuerte Exp $ -->
+    <!-- $Id: UsUnitMutator.uc,v 1.7 2005/07/28 16:06:11 elmuerte Exp $ -->
 *******************************************************************************/
 
 class UsUnitMutator extends Mutator;
@@ -25,9 +25,20 @@ var protected PlayerController ActiveUser;
 
 function Mutate(string MutateString, PlayerController Sender)
 {
+    local UsUnitUtils utils;
+    local string pkgname;
+    local array< class<TestBase> > classes;
+
+    Divide(mutatestring, " ", mutatestring, pkgname);
+
     if (MutateString ~= "usunit")
     {
         OpenInterface(sender);
+    }
+    else if (MutateString ~= "findtests")
+    {
+        utils = new class'UsUnitUtils';
+        log("FindTestClasses = "$utils.FindTestClasses(pkgname, classes, Level.Game));
     }
     else super.Mutate(MutateString, Sender);
 }
