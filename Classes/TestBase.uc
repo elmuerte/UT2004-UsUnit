@@ -1,15 +1,15 @@
 /*******************************************************************************
-	TestBase
-	Base class for TestSuite and TestCase to make it easier for TestRunner
+    TestBase
+    Base class for TestSuite and TestCase to make it easier for TestRunner
 
-	Written by: Michiel "El Muerte" Hendriks <elmuerte@drunksnipers.com>
+    Written by: Michiel "El Muerte" Hendriks <elmuerte@drunksnipers.com>
 
-	UsUnit Testing Framework
-	Copyright (C) 2005, Michiel "El Muerte" Hendriks
+    UsUnit Testing Framework
+    Copyright (C) 2005, Michiel "El Muerte" Hendriks
 
-	This program is free software; you can redistribute and/or modify
-	it under the terms of the Lesser Open Unreal Mod License.
-	<!-- $Id: TestBase.uc,v 1.7 2005/06/28 09:44:58 elmuerte Exp $ -->
+    This program is free software; you can redistribute and/or modify
+    it under the terms of the Lesser Open Unreal Mod License.
+    <!-- $Id: TestBase.uc,v 1.8 2005/07/29 06:40:35 elmuerte Exp $ -->
 *******************************************************************************/
 
 class TestBase extends Info abstract config(UsUnit);
@@ -38,21 +38,21 @@ var protected TestReporter Reporter;
 delegate TestComplete(TestBase Sender);
 
 /**
-	Entry function to execute the tests. Override this method to call your
-	test functions.
+    Entry function to execute the tests. Override this method to call your
+    test functions.
 */
 function run();
 
 /**
-	If you need to initialize items before the test is run do it in this
-	function.
+    If you need to initialize items before the test is run do it in this
+    function.
 */
 function setUp();
 
 /**
-	This function is used for cleanup. Called after the test was completed.
-	Use it to reset everything your test has set up (so it has a good start
-	the next time the test is run).
+    This function is used for cleanup. Called after the test was completed.
+    Use it to reset everything your test has set up (so it has a good start
+    the next time the test is run).
 */
 function tearDown();
 
@@ -60,14 +60,14 @@ function tearDown();
 function byte getProgress() { return 255; }
 
 /**
-	Reset the internal statistics. Called before runTests() or setUp() are called.
+    Reset the internal statistics. Called before runTests() or setUp() are called.
 */
 final function ResetStats()
 {
-	Checks = 0;
-	Failed = 0;
-	FatalError = 0;
-	TestTime = 0;
+    Checks = 0;
+    Failed = 0;
+    FatalError = 0;
+    TestTime = 0;
 }
 /** accessor for the Checks statistics */
 final function int getNumChecks() { return Checks; }
@@ -79,11 +79,11 @@ final function byte getSuccessPct() { return round((Checks-Failed)*100/Checks); 
 /** initialize some core variables */
 event PreBeginPlay()
 {
-	if (Reporter == none) foreach AllActors(class'TestReporter', Reporter) break;
-	super.PreBeginPlay();
+    if (Reporter == none) foreach AllActors(class'TestReporter', Reporter) break;
+    super.PreBeginPlay();
 }
 
 defaultproperties
 {
-	USUNIT_VERSION="0.0.9"
+    USUNIT_VERSION="0.0.10"
 }
