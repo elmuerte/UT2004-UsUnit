@@ -9,14 +9,14 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: UsUnitWebQueryHandler.uc,v 1.3 2005/08/02 08:12:21 elmuerte Exp $ -->
+    <!-- $Id: UsUnitWebQueryHandler.uc,v 1.4 2005/08/09 08:27:41 elmuerte Exp $ -->
 *******************************************************************************/
 
 class UsUnitWebQueryHandler extends xWebQueryHandler;
 
 var TestRunner Runner;
 
-var string uri_css, uri_menu, uri_controls;
+var string uri_css, uri_menu, uri_controls, uri_results;
 
 function bool Query(WebRequest Request, WebResponse Response)
 {
@@ -37,6 +37,9 @@ function bool Query(WebRequest Request, WebResponse Response)
         case uri_controls:
             QueryControls(Request, Response);
             return true;
+        case uri_results:
+            QueryResults(Request, Response);
+            return true;
     }
     return false;
 }
@@ -46,6 +49,8 @@ function DefSubst(WebRequest Request, WebResponse Response)
     Response.Subst("uri_css",       uri_css);
     Response.Subst("uri_menu",      uri_menu);
     Response.Subst("uri_controls",  uri_controls);
+    Response.Subst("uri_results",   uri_results);
+    Response.Subst("title",         "");
     Response.Subst("VERSION",       class'TestBase'.default.USUNIT_VERSION);
 }
 
@@ -54,9 +59,15 @@ function QueryControls(WebRequest Request, WebResponse Response)
     local string str;
     local int i;
 
-    if (Request.GetVariable("cmd") == "start" && !Runner.isRunning()) Runner.run();
+    if (Request.GetVariable("cmd") == "start" && !Runner.isRunning())
+    {
+        Runner.run();
+        Response.Redirect(Path$"/"$uri_results$"#end");
+        return;
+    }
 
     DefSubst(Request, Response);
+    Response.Subst("title", "Controls");
 
     str $= "<ol>";
     for (i = 0; i < Runner.TestClasses.length; i++)
@@ -71,6 +82,19 @@ function QueryControls(WebRequest Request, WebResponse Response)
     else Response.Subst("startcmd", "");
 
     ShowPage(Response, uri_controls);
+}
+
+function QueryResults(WebRequest Request, WebResponse Response)
+{
+    DefSubst(Request, Response);
+    Response.Subst("title", "Results");
+    if (Runner.isRunning())
+    {
+        Response.HTTPResponse("HTTP/1.1 200 Ok");
+        Response.HTTPHeader("Refresh: 5");
+    }
+
+    ShowPage(Response, uri_results);
 }
 
 
@@ -118,4 +142,5 @@ defaultproperties
     uri_css="usunit.css"
     uri_menu="usunit_menu"
     uri_controls="usunit_controls"
+    uri_results="usunit_results"
 }
