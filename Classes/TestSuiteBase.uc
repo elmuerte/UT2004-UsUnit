@@ -9,7 +9,7 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: TestSuiteBase.uc,v 1.8 2005/08/30 18:16:35 elmuerte Exp $ -->
+    <!-- $Id: TestSuiteBase.uc,v 1.9 2005/09/01 15:49:33 elmuerte Exp $ -->
 *******************************************************************************/
 
 class TestSuiteBase extends TestBase abstract;
@@ -29,6 +29,9 @@ var protected bool bRunning;
 /** test suite was aborted because */
 var protected bool bAborted;
 
+/** special variables used for clocking the tests */
+var protected float clockx, clocky;
+
 /** runs the test suites. */
 function run()
 {
@@ -42,6 +45,29 @@ function run()
     TestInstances.Length = TestClasses.Length;
     currentIndex = 0;
     enable('Tick');
+}
+
+/** special perpose clock mechanism */
+protected function ClockEx()
+{
+    clock(clockX);
+    clockY = Level.TimeSeconds;
+}
+
+/**
+    Special perpose clock mechanism. <br />
+    Since the normal clock is not very reliable, specially not when the engine
+    has ticked the Level.TimeSeconds is used by default, unless the difference
+    is 0, then the clock\unclock value is used. TimeSeconds is only updated during
+    tick. <br />
+    Returns duration in seconds.
+*/
+protected function float UnClockEx()
+{
+    unclock(clockX);
+    clockY = Level.TimeSeconds-clockY;
+    if (clockY != 0) return clockY;
+    return clockX/1000.0;
 }
 
 /** this function actually does the work */
@@ -70,6 +96,7 @@ protected function internalRun()
     TestInstances[currentIndex].ResetStats();
     TestInstances[currentIndex].TestComplete = completedTest;
     TestInstances[currentIndex].setUp();
+    ClockEx();
     ++Checks;
     TestInstances[currentIndex].TestTime = Level.TimeSeconds;
     TestInstances[currentIndex].run();
@@ -84,8 +111,7 @@ protected function completedTest(TestBase Sender)
         TestComplete(Self); // to make sure it'll continue
         return;
     }
-    Sender.TestTime = Level.TimeSeconds-Sender.TestTime;
-    log(string(Sender)@Sender.TestTime);
+    Sender.TestTime = UnClockEx();
     Sender.tearDown();
     if (Sender.Failed > 0)
     {

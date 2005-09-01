@@ -9,13 +9,15 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: Output_HTML.uc,v 1.4 2005/06/24 16:28:58 elmuerte Exp $ -->
+    <!-- $Id: Output_HTML.uc,v 1.5 2005/09/01 15:49:33 elmuerte Exp $ -->
 *******************************************************************************/
 
-class Output_HTML extends ReporterOutputModule;
+class Output_HTML extends ReporterOutputModule config(UsUnit);
 
 var protected FileLog html;
 var protected string indent;
+
+var config string FilenameFormat;
 
 struct StatsStruct
 {
@@ -31,9 +33,39 @@ event Created()
     html = spawn(class'FileLog');
 }
 
+/**
+	return the filename to use for the log file. The following formatting rules are accepted:
+	%P		server port
+	%N      server name
+	%L      level name
+	%Y		year
+	%M		month
+	%D		day
+	%H		hour
+	%I		minute
+	%S		second
+	%W		day of the week
+*/
+function string GetLogFilename()
+{
+  local string result;
+  result = FilenameFormat;
+  ReplaceText(result, "%P", string(Level.Game.GetServerPort()));
+  ReplaceText(result, "%N", Level.Game.GameReplicationInfo.ServerName);
+  ReplaceText(result, "%L", Left(string(Level), InStr(string(Level), ".")));
+  ReplaceText(result, "%Y", string(Level.Year));
+  ReplaceText(result, "%M", Right("0"$string(Level.Month), 2));
+  ReplaceText(result, "%D", Right("0"$string(Level.Day), 2));
+  ReplaceText(result, "%H", Right("0"$string(Level.Hour), 2));
+  ReplaceText(result, "%I", Right("0"$string(Level.Minute), 2));
+  ReplaceText(result, "%W", string(Level.DayOfWeek));
+  ReplaceText(result, "%S", Right("0"$string(Level.Second), 2));
+  return result;
+}
+
 function start()
 {
-    html.OpenLog("UsUnit_report", "html", true);
+    html.OpenLog(GetLogFilename(), "html", true);
     Stats.TotalCheck = 0;
     Stats.TotalFail = 0;
     Stats.TotalTests = 0;
@@ -75,7 +107,7 @@ function testEnd(TestBase test)
     {
         Stats.TotalTime += test.TestTime;
         html.Logf(indent$"    </table>");
-        html.Logf(indent$"    <p class=\"testStats\">Time: "$string(test.TestTime)$" sec; Success: "$string(test.getSuccessPct())$"%</p>");
+        html.Logf(indent$"    <p class=\"testStats\">Time: "$string(int(test.TestTime*1000))$" ms; Success: "$string(test.getSuccessPct())$"%</p>");
     }
     else if (Test.IsA('TestSuite'))
     {
@@ -128,7 +160,7 @@ function _head()
     html.Logf("<html xml:lang=\"en\">");
     html.Logf("<head>");
     html.Logf("    <title>UsUnit Report - "$date$"</title>");
-    html.Logf("    <meta name=\"generator\"/ content=\"$Id: Output_HTML.uc,v 1.4 2005/06/24 16:28:58 elmuerte Exp $\">");
+    html.Logf("    <meta name=\"generator\"/ content=\"$Id: Output_HTML.uc,v 1.5 2005/09/01 15:49:33 elmuerte Exp $\">");
     _style();
     html.Logf("</head>");
     html.Logf("<body>");
@@ -181,7 +213,7 @@ function _stats()
     html.Logf("</tr>");
     html.Logf("<tr>");
     html.Logf("    <td class=\"field\">Total Time:</td>");
-    html.Logf("    <td class=\"value\">"$string(Stats.TotalTime)$" sec</td>");
+    html.Logf("    <td class=\"value\">"$string(int(Stats.TotalTime*1000))$" ms</td>");
     html.Logf("</tr>");
     html.Logf("<tr>");
     html.Logf("    <td class=\"field\">Total Tests:</td>");
@@ -192,4 +224,9 @@ function _stats()
     html.Logf("    <td class=\"value\">"$string(int(round((Stats.TotalCheck-Stats.TotalFail)*100/Stats.TotalCheck)))$"%</td>");
     html.Logf("</tr>");
     html.Logf("</table>");
+}
+
+defaultproperties
+{
+    FilenameFormat="UsUnit_report"
 }
