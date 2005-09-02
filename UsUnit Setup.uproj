@@ -1,0 +1,51 @@
+d:\dev\ut2004\ut2-code
+0.8
+[Group]
+name=UsUnit
+Required=true
+Selectable=true
+Selected=true
+Visible=true
+caption=UsUnit Core
+description=The core files of the testing framework
+System\UsUnit.ucl
+System\UsUnit.u
+UsUnit\macros.inc
+UsUnit\LICENSE.TXT
+src=Help\UsUnit LICENSE.TXT
+[Group]
+name=UsUnitExamples
+Selectable=true
+Selected=true
+Visible=true
+caption=UsUnit Examples
+description=Example test cases
+UsUnitExamples\Classes\*.uc
+UsUnitExamples\Classes\*.puc
+[Group]
+name=UsUnitSource
+Selectable=true
+Visible=true
+caption=Source code
+description=The full source code of UsUnit
+UsUnit\Classes\*.uc
+UsUnit\Classes\*.puc
+UsUnit\Classes\*.inc
+[Requirement]
+product=UT2004
+version=3186
+developer=Epic Games, Inc.
+productURL=http://www.unrealtournament2004.com/
+versionURL=http://unreal.epicgames.com/
+developerURL=http://www.epicgames.com/
+[Product]
+product=UsUnit
+version=11
+developer=Michiel "El Muerte" Hendriks
+productURL=http://wiki.beyondunreal.com/wiki/UsUnit
+versionURL=http://wiki.beyondunreal.com/wiki/UsUnit
+developerURL=http://wiki.beyondunreal.com/wiki/El_Muerte
+title=UsUnit - UnrealScript Unit Testing Framework
+cleanup=True
+logo=UsUnit\logo.bmp
+archive=UsUnit.ut4mod
