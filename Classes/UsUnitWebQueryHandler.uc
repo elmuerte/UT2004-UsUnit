@@ -1,6 +1,6 @@
 /*******************************************************************************
     UsUnitWebQueryHandler
-    Web Query handler
+    Web Query handler. ALPHA
 
     Written by: Michiel "El Muerte" Hendriks <elmuerte@drunksnipers.com>
 
@@ -9,7 +9,7 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: UsUnitWebQueryHandler.uc,v 1.4 2005/08/09 08:27:41 elmuerte Exp $ -->
+    <!-- $Id: UsUnitWebQueryHandler.uc,v 1.5 2005/09/06 16:16:22 elmuerte Exp $ -->
 *******************************************************************************/
 
 class UsUnitWebQueryHandler extends xWebQueryHandler;

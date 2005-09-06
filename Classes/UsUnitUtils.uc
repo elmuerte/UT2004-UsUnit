@@ -12,7 +12,7 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: UsUnitUtils.uc,v 1.7 2005/09/02 13:50:34 elmuerte Exp $ -->
+    <!-- $Id: UsUnitUtils.uc,v 1.8 2005/09/06 16:16:22 elmuerte Exp $ -->
 *******************************************************************************/
 
 class UsUnitUtils extends Object;

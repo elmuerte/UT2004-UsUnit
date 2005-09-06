@@ -10,7 +10,7 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: UsUnitMutator.uc,v 1.9 2005/08/02 08:12:21 elmuerte Exp $ -->
+    <!-- $Id: UsUnitMutator.uc,v 1.10 2005/09/06 16:16:22 elmuerte Exp $ -->
 *******************************************************************************/
 
 class UsUnitMutator extends Mutator;
@@ -53,7 +53,7 @@ function OpenInterface(PlayerController Sender)
 defaultproperties
 {
     FriendlyName="UsUnit"
-    Description="Provides an alternative method to start UsUnit tests; it also has a fancy GUI. WARNING: this mutator works only for a single user environment."
+    Description="(BETA!) Provides an alternative method to start UsUnit tests; it also has a fancy GUI. WARNING: this mutator works only for a single user environment."
     GroupName="Tests"
 
     ReplicationInfoClass=class'UsUnitReplicationInfo'

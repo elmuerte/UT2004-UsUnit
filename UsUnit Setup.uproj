@@ -3,7 +3,6 @@ d:\dev\ut2004\ut2-code
 [Group]
 name=UsUnit
 Required=true
-Selectable=true
 Selected=true
 Visible=true
 caption=UsUnit Core
@@ -11,8 +10,8 @@ description=The core files of the testing framework
 System\UsUnit.ucl
 System\UsUnit.u
 UsUnit\macros.inc
-UsUnit\LICENSE.TXT
-src=Help\UsUnit LICENSE.TXT
+System\UsUnit.example.ini
+Web\ServerAdmin\usunit*.*
 [Group]
 name=UsUnitExamples
 Selectable=true
@@ -40,12 +39,14 @@ versionURL=http://unreal.epicgames.com/
 developerURL=http://www.epicgames.com/
 [Product]
 product=UsUnit
-version=11
+version=100
 developer=Michiel "El Muerte" Hendriks
 productURL=http://wiki.beyondunreal.com/wiki/UsUnit
 versionURL=http://wiki.beyondunreal.com/wiki/UsUnit
 developerURL=http://wiki.beyondunreal.com/wiki/El_Muerte
+readme=UsUnit\UsUnit README.txt
 title=UsUnit - UnrealScript Unit Testing Framework
 cleanup=True
+license=UsUnit_LICENSE.int
 logo=UsUnit\logo.bmp
-archive=UsUnit.ut4mod
+archive=UsUnit_v100.ut4mod

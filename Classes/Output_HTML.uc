@@ -9,7 +9,7 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: Output_HTML.uc,v 1.5 2005/09/01 15:49:33 elmuerte Exp $ -->
+    <!-- $Id: Output_HTML.uc,v 1.6 2005/09/06 16:16:22 elmuerte Exp $ -->
 *******************************************************************************/
 
 class Output_HTML extends ReporterOutputModule config(UsUnit);
@@ -34,17 +34,17 @@ event Created()
 }
 
 /**
-	return the filename to use for the log file. The following formatting rules are accepted:
-	%P		server port
-	%N      server name
-	%L      level name
-	%Y		year
-	%M		month
-	%D		day
-	%H		hour
-	%I		minute
-	%S		second
-	%W		day of the week
+    return the filename to use for the log file. The following formatting rules are accepted:
+    %P      server port
+    %N      server name
+    %L      level name
+    %Y      year
+    %M      month
+    %D      day
+    %H      hour
+    %I      minute
+    %S      second
+    %W      day of the week
 */
 function string GetLogFilename()
 {
@@ -107,7 +107,7 @@ function testEnd(TestBase test)
     {
         Stats.TotalTime += test.TestTime;
         html.Logf(indent$"    </table>");
-        html.Logf(indent$"    <p class=\"testStats\">Time: "$string(int(test.TestTime*1000))$" ms; Success: "$string(test.getSuccessPct())$"%</p>");
+        html.Logf(indent$"    <p class=\"testStats\">Time: "$string(round(test.TestTime*1000))$" ms; Success: "$string(test.getSuccessPct())$"%</p>");
     }
     else if (Test.IsA('TestSuite'))
     {
@@ -160,7 +160,7 @@ function _head()
     html.Logf("<html xml:lang=\"en\">");
     html.Logf("<head>");
     html.Logf("    <title>UsUnit Report - "$date$"</title>");
-    html.Logf("    <meta name=\"generator\"/ content=\"$Id: Output_HTML.uc,v 1.5 2005/09/01 15:49:33 elmuerte Exp $\">");
+    html.Logf("    <meta name=\"generator\"/ content=\"$Id: Output_HTML.uc,v 1.6 2005/09/06 16:16:22 elmuerte Exp $\">");
     _style();
     html.Logf("</head>");
     html.Logf("<body>");
@@ -213,7 +213,7 @@ function _stats()
     html.Logf("</tr>");
     html.Logf("<tr>");
     html.Logf("    <td class=\"field\">Total Time:</td>");
-    html.Logf("    <td class=\"value\">"$string(int(Stats.TotalTime*1000))$" ms</td>");
+    html.Logf("    <td class=\"value\">"$string(round(Stats.TotalTime*1000))$" ms</td>");
     html.Logf("</tr>");
     html.Logf("<tr>");
     html.Logf("    <td class=\"field\">Total Tests:</td>");
