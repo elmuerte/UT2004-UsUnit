@@ -9,7 +9,7 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: TestSuiteBase.uc,v 1.9 2005/09/01 15:49:33 elmuerte Exp $ -->
+    <!-- $Id: TestSuiteBase.uc,v 1.10 2005/09/07 11:50:18 elmuerte Exp $ -->
 *******************************************************************************/
 
 class TestSuiteBase extends TestBase abstract;
@@ -165,5 +165,5 @@ function bool isAborted() { return bAborted; }
 
 defaultproperties
 {
-    bBreakOnFail=true
+    bBreakOnFail=false
 }

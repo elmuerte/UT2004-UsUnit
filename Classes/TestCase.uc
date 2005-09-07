@@ -19,7 +19,7 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: TestCase.uc,v 1.5 2005/06/24 16:28:58 elmuerte Exp $ -->
+    <!-- $Id: TestCase.uc,v 1.6 2005/09/07 11:50:18 elmuerte Exp $ -->
 *******************************************************************************/
 
 class TestCase extends TestBase abstract;
@@ -37,7 +37,7 @@ class TestCase extends TestBase abstract;
     Perform a test, expression should contain the expression to evaluate. When
     it results in false the test failed.
 */
-protected final function Check(bool expression, coerce string message, optional bool bFatal)
+protected final function Check(bool expression, coerce string message)
 {
     ++Checks;
     Reporter.reportCheck(Checks, message);

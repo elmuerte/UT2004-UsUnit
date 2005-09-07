@@ -1,7 +1,7 @@
 
-                             UsUnit v1.0.11
+                             UsUnit v1.1.??
                   UnrealScript Unit Testing Framework
-                      Tuesday, September 06, 2005
+                      ??
 
 --{ About }---------------------------------------------------------------------
 
@@ -31,6 +31,8 @@ or
 
 --{ Changelog }-----------------------------------------------------------------
 
-No changes yet
+Changes since v1.0.11
+- TestSuiteBase.bBreakOnFail defaults to false
+- Removed redundant argument bFatal from TestCase.Check
 
 -------------------------------------------{ Copyright 2005 Michiel Hendriks }--
