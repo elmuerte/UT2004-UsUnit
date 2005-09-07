@@ -49,4 +49,4 @@ title=UsUnit - UnrealScript Unit Testing Framework
 cleanup=True
 license=UsUnit_LICENSE.int
 logo=UsUnit\logo.bmp
-archive=UsUnit_v100.ut4mod
+archive=../UsUnit_v100.ut4mod
