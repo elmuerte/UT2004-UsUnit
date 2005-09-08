@@ -34,5 +34,6 @@ or
 Changes since v1.0.11
 - TestSuiteBase.bBreakOnFail defaults to false
 - Removed redundant argument bFatal from TestCase.Check
+- Added output reporter for the webadmin interface
 
 -------------------------------------------{ Copyright 2005 Michiel Hendriks }--

@@ -9,14 +9,20 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: UsUnitWebQueryHandler.uc,v 1.5 2005/09/06 16:16:22 elmuerte Exp $ -->
+    <!-- $Id: UsUnitWebQueryHandler.uc,v 1.6 2005/09/08 10:40:23 elmuerte Exp $ -->
 *******************************************************************************/
 
 class UsUnitWebQueryHandler extends xWebQueryHandler;
 
+/** delay between refreshes (in seconds) */
+var config int ResultsRefreshDelay;
+
 var TestRunner Runner;
 
-var string uri_css, uri_menu, uri_controls, uri_results;
+var class<Output_WebAdmin> OutputModuleClass;
+var Output_WebAdmin OutputModule;
+
+var string uri_css, uri_menu, uri_controls, uri_results, uri_about, uri_config;
 
 function bool Query(WebRequest Request, WebResponse Response)
 {
@@ -40,6 +46,15 @@ function bool Query(WebRequest Request, WebResponse Response)
         case uri_results:
             QueryResults(Request, Response);
             return true;
+        case uri_about:
+            DefSubst(Request, Response);
+            Response.Subst("title", "About");
+            ShowPage(Response, uri_about);
+            return true;
+        case uri_config:
+            DefSubst(Request, Response);
+            ShowPage(Response, uri_config);
+            return true;
     }
     return false;
 }
@@ -50,6 +65,8 @@ function DefSubst(WebRequest Request, WebResponse Response)
     Response.Subst("uri_menu",      uri_menu);
     Response.Subst("uri_controls",  uri_controls);
     Response.Subst("uri_results",   uri_results);
+    Response.Subst("uri_config",    uri_config);
+    Response.Subst("uri_about",     uri_about);
     Response.Subst("title",         "");
     Response.Subst("VERSION",       class'TestBase'.default.USUNIT_VERSION);
 }
@@ -86,15 +103,32 @@ function QueryControls(WebRequest Request, WebResponse Response)
 
 function QueryResults(WebRequest Request, WebResponse Response)
 {
+    local int i;
     DefSubst(Request, Response);
-    Response.Subst("title", "Results");
     if (Runner.isRunning())
     {
         Response.HTTPResponse("HTTP/1.1 200 Ok");
-        Response.HTTPHeader("Refresh: 5");
+        Response.HTTPHeader("Refresh: "$string(ResultsRefreshDelay));
     }
 
-    ShowPage(Response, uri_results);
+    if (OutputModule != none)
+        Response.Subst("title", "Results - "$OutputModule.timestamp);
+    else
+        Response.Subst("title", "Results");
+    Response.IncludeUHTM(Path $ SkinPath $ "/" $ "usunit_header.inc");
+
+    if (OutputModule != none)
+    {
+        for (i = 0; i < OutputModule.lines.length; i++)
+        {
+            Response.SendText(OutputModule.lines[i]);
+        }
+
+        Response.SendText(OutputModule.closure());
+    }
+
+    Response.SendText("<a name=\"end\"></a>");
+    Response.IncludeUHTM(Path $ SkinPath $ "/" $ "usunit_footer.inc");
 }
 
 
@@ -120,21 +154,22 @@ function GetTestRunner()
 
 function HookOutputModule()
 {
-    //local TestReporter Reporter;
+    local TestReporter Reporter;
     log("HookOutputModule", name);
     // add our reporter
-    /*
     if (OutputModule == none)
     {
         foreach Level.AllActors(class'TestReporter', Reporter) break;
         if (Reporter != none)
-            OutputModule = Output_MutatorGUI(Reporter.AddOutputModule(OutputModuleClass));
+            OutputModule = Output_WebAdmin(Reporter.AddOutputModule(OutputModuleClass));
     }
-    */
 }
 
 defaultproperties
 {
+    OutputModuleClass=class'Output_WebAdmin'
+    ResultsRefreshDelay=2
+
     DefaultPage="usunit_frame"
     Title="UsUnit"
     NeededPrivs=""
@@ -143,4 +178,6 @@ defaultproperties
     uri_menu="usunit_menu"
     uri_controls="usunit_controls"
     uri_results="usunit_results"
+    uri_config="usunit_config"
+    uri_about="usunit_about"
 }
