@@ -8,13 +8,13 @@ BODY {
 
 DIV.menu {
 	background-color: silver;
-	border: 2px solid gray;
+	border: 2px solid #999999;
 }
 
 DIV.menu H1 {
 	margin-top: 0px;
 	margin-bottom: 0px;
-	background-color: gray;
+	background-color: #999999;
 	font-size: 14px;
 	font-weight: bold;
 	padding: 2px;
@@ -48,18 +48,18 @@ H1 {
 }
 
 LEGEND {
-	border: 1px solid gray;
+	border: 1px solid #999999;
 	padding: 2px;
 	margin: 0px;	
 }
 
 fieldset {
-	border: 2px solid gray;
+	border: 2px solid #999999;
 }
 
 DIV.frame {
 	background-color: silver;
-	border: 2px solid gray;
+	border: 2px solid #999999;
 	margin-bottom: 10px;
 	padding: 2px;
 }
@@ -67,7 +67,7 @@ DIV.frame {
 H2 {
 	margin-top: 0px;
 	margin-bottom: 0px;
-	background-color: gray;
+	background-color: #999999;
 	font-size: 16px;
 	font-weight: bold;
 	padding: 2px 2px 0px 4px;
@@ -83,4 +83,13 @@ A {
 
 A:Visited {
 	color: navy;
+}
+
+DL {
+	margin: 5px 0 5px 0;
+}
+
+DT {
+	font-weight: bold;
+	font-size: 12px;
 }
