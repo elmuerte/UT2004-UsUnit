@@ -9,7 +9,7 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: Output_WebAdmin.uc,v 1.1 2005/09/08 10:40:23 elmuerte Exp $ -->
+    <!-- $Id: Output_WebAdmin.uc,v 1.2 2005/09/09 20:41:25 elmuerte Exp $ -->
 *******************************************************************************/
 class Output_WebAdmin extends Output_HTMLBase;
 
@@ -42,7 +42,7 @@ function _footer()
 function string closure()
 {
     local string res;
-    if (Stack.length == 0) return "";
+    if (Stack.length == 0) return "<p><em>Tests still running...</em></p>";
     if (Stack[0].IsA('TestCase')) res = "</table>";
     res = res$StrRepeat("</td></tr></table>", Stack.length);
     return res$"<p><em>Tests still running...</em></p>";

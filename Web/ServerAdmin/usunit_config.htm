@@ -1,7 +1,43 @@
 <!-- #include file="usunit_header.inc" -->
 
+<h2>Currently Selected Tests</h2>
+<div class="frame">
+<form action="<%uri_config%>" method="post">
+<input type="hidden" name="action" value="remove" />
+<%selected_tests%>
+<button type="submit">remove selected tests</button>
+</form>
+</div>
 
-<em>not yet implemented</em>
+<h2>Add Test Classes</h2>
+<div class="frame">
+<form action="<%uri_config%>" method="post">
+<h3>Known classes</h3>
+<input type="hidden" name="action" value="add_known" />
+<%known_tests%>
+<button type="submit">add selected tests</button>
+</form>
 
+<hr />
+
+<form action="<%uri_config%>" method="post">
+<input type="hidden" name="action" value="add_single" />
+<label for="classname">Class name</label> <input type="text" name="classname" id="classname" size="40"  title="The fully qualified name of the class: package.class" /> <button type="submit">add</button>
+</form>
+</div>
+
+<h2>Find Tests</h2>
+<div class="frame">
+<form action="<%uri_config%>" method="post">
+<input type="hidden" name="action" value="find" />
+<label for="packagename">Package name</label> <input type="text" name="packagename" id="packagename" size="40" title="The name of a package to search in. No guarantee on a success." /> <button type="submit">find</button>
+</form>
+</div>
+
+<h2>Settings</h2>
+<div class="frame">
+</div>
+
+<em>Not completely implemented</em>
 
 <!-- #include file="usunit_footer.inc" -->

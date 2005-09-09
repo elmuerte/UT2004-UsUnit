@@ -9,7 +9,7 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: UsUnitWebQueryHandler.uc,v 1.6 2005/09/08 10:40:23 elmuerte Exp $ -->
+    <!-- $Id: UsUnitWebQueryHandler.uc,v 1.7 2005/09/09 20:41:25 elmuerte Exp $ -->
 *******************************************************************************/
 
 class UsUnitWebQueryHandler extends xWebQueryHandler;
@@ -19,9 +19,11 @@ var config int ResultsRefreshDelay;
 
 var TestRunner Runner;
 
+/** the output module class to use */
 var class<Output_WebAdmin> OutputModuleClass;
 var Output_WebAdmin OutputModule;
 
+/** the urls for the various pages */
 var string uri_css, uri_menu, uri_controls, uri_results, uri_about, uri_config;
 
 function bool Query(WebRequest Request, WebResponse Response)
@@ -53,7 +55,7 @@ function bool Query(WebRequest Request, WebResponse Response)
             return true;
         case uri_config:
             DefSubst(Request, Response);
-            ShowPage(Response, uri_config);
+            QueryConfig(Request, Response);
             return true;
     }
     return false;
@@ -111,7 +113,7 @@ function QueryResults(WebRequest Request, WebResponse Response)
         Response.HTTPHeader("Refresh: "$string(ResultsRefreshDelay));
     }
 
-    if (OutputModule != none)
+    if ((OutputModule != none) && (OutputModule.timestamp != ""))
         Response.Subst("title", "Results - "$OutputModule.timestamp);
     else
         Response.Subst("title", "Results");
@@ -119,18 +121,40 @@ function QueryResults(WebRequest Request, WebResponse Response)
 
     if (OutputModule != none)
     {
+        if (OutputModule.timestamp == "") Response.SendText("<p><em>No test results available</em></p>");
         for (i = 0; i < OutputModule.lines.length; i++)
         {
             Response.SendText(OutputModule.lines[i]);
         }
-
-        Response.SendText(OutputModule.closure());
+        if (Runner.isRunning()) Response.SendText(OutputModule.closure());
     }
 
     Response.SendText("<a name=\"end\"></a>");
     Response.IncludeUHTM(Path $ SkinPath $ "/" $ "usunit_footer.inc");
 }
 
+function QueryConfig(WebRequest Request, WebResponse Response)
+{
+    local int i;
+    local string res;
+
+    DefSubst(Request, Response);
+    Response.Subst("title", "Configuration");
+
+    res = "";
+    for (i = 0; i < Runner.TestClasses.length; i++)
+    {
+        Response.Subst("check_name", "SelectedTests_"$string(i));
+        Response.Subst("check_value", string(Runner.TestClasses[i]));
+        Response.Subst("check_checked", "");
+        Response.Subst("check_id", string(i));
+        Response.Subst("check_label", Runner.TestClasses[i].default.TestName$" (<code>"$string(Runner.TestClasses[i])$"</code>)");
+        res = res$Response.LoadParsedUHTM(Path $ SkinPath $ "/" $ "usunit_checkbox.inc");
+    }
+    Response.Subst("selected_tests", res);
+
+    ShowPage(Response, uri_config);
+}
 
 function GetTestRunner()
 {
