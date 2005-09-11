@@ -12,10 +12,53 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: UsUnitUtils.puc,v 1.3 2005/09/09 20:41:25 elmuerte Exp $ -->
+    <!-- $Id: UsUnitUtils.puc,v 1.4 2005/09/11 11:48:56 elmuerte Exp $ -->
 *******************************************************************************/
 
-class UsUnitUtils extends Object;
+class UsUnitUtils extends Object config(UsUnit);
+
+/** cached list with known subclasses */
+//TODO: test if this messes with FindTests
+var config array< class<TestBase> > KnownTestClasses;
+
+event Created()
+{
+    local int i;
+    log("UsUnitUtils::Created", 'UsUnit');
+    for (i = KnownTestClasses.length-1; i >= 0; i--)
+    {
+        if (KnownTestClasses[i] == none) // class couldn't be resolved, remove
+        {
+            KnownTestClasses.remove(i, 1);
+            continue;
+        }
+        log("> "$KnownTestClasses[i], 'UsUnit');
+    }
+}
+
+final static operator(24) bool > (class<TestBase> A, class<TestBase> B)
+{
+    return caps(string(A)) > caps(string(B));
+}
+
+final static operator(24) bool == (class<TestBase> A, class<TestBase> B)
+{
+    return string(A) ~= string(B);
+}
+
+function AddKnownTestClass(class<TestBase> cls, optional bool bDontSave)
+{
+    local int i;
+    //TODO: improve search
+    for (i = 0; i < KnownTestClasses.length; i++)
+    {
+        if (KnownTestClasses[i] == cls) return;
+        if (KnownTestClasses[i] > cls) break;
+    }
+    KnownTestClasses.insert(i, 1);
+    KnownTestClasses[i] = cls;
+    if (!bDontSave) SaveConfig();
+}
 
 /**
     Returns a list of available test classes in the given package.
@@ -53,9 +96,11 @@ function int FindTestClasses(string package, out array< class<TestBase> > result
             if (ClassIsChildOf(c, class'TestCase') || ClassIsChildOf(c, class'TestSuite'))
             {
                 results[results.length] = c;
+                AddKnownTestClass(c, true);
             }
         }
     }
+    if (results.length > 0) SaveConfig();
     if (res < 0) return res;
     return results.length;
 #else

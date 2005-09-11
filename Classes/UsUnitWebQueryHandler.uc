@@ -9,7 +9,7 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: UsUnitWebQueryHandler.uc,v 1.7 2005/09/09 20:41:25 elmuerte Exp $ -->
+    <!-- $Id: UsUnitWebQueryHandler.uc,v 1.8 2005/09/11 11:48:56 elmuerte Exp $ -->
 *******************************************************************************/
 
 class UsUnitWebQueryHandler extends xWebQueryHandler;
@@ -18,6 +18,8 @@ class UsUnitWebQueryHandler extends xWebQueryHandler;
 var config int ResultsRefreshDelay;
 
 var TestRunner Runner;
+
+var UsUnitUtils Utils;
 
 /** the output module class to use */
 var class<Output_WebAdmin> OutputModuleClass;
@@ -29,6 +31,7 @@ var string uri_css, uri_menu, uri_controls, uri_results, uri_about, uri_config;
 function bool Query(WebRequest Request, WebResponse Response)
 {
     if (Runner == none) GetTestRunner();
+    if (Utils == none) GetUtils();
     switch (Mid(Request.URI, 1))
     {
         case DefaultPage:
@@ -149,7 +152,12 @@ function QueryConfig(WebRequest Request, WebResponse Response)
         Response.Subst("check_checked", "");
         Response.Subst("check_id", string(i));
         Response.Subst("check_label", Runner.TestClasses[i].default.TestName$" (<code>"$string(Runner.TestClasses[i])$"</code>)");
-        res = res$Response.LoadParsedUHTM(Path $ SkinPath $ "/" $ "usunit_checkbox.inc");
+        if (i > 0) Response.Subst("updown_up", "");
+            else Response.Subst("updown_up", "disabled=\"disabled\"");
+        if (i < Runner.TestClasses.length-1) Response.Subst("updown_down", "");
+            else Response.Subst("updown_down", "disabled=\"disabled\"");
+        Response.Subst("updown_id", string(i));
+        res = res $ Response.LoadParsedUHTM(Path $ SkinPath $ "/" $ "usunit_updown.inc") $ Response.LoadParsedUHTM(Path $ SkinPath $ "/" $ "usunit_checkbox.inc");
     }
     Response.Subst("selected_tests", res);
 
@@ -186,6 +194,17 @@ function HookOutputModule()
         foreach Level.AllActors(class'TestReporter', Reporter) break;
         if (Reporter != none)
             OutputModule = Output_WebAdmin(Reporter.AddOutputModule(OutputModuleClass));
+    }
+}
+
+function GetUtils()
+{
+    if (Utils == none)
+        foreach Level.AllObjects(class'UsUnitUtils', Utils) break;
+
+    if (Utils == none)
+    {
+        Utils = new class'UsUnitUtils';
     }
 }
 
