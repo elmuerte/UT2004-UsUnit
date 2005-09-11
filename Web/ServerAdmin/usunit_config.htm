@@ -1,5 +1,24 @@
 <!-- #include file="usunit_header.inc" -->
 
+<script type="text/javascript">
+function EnableButton(btn, enabled)
+{
+	_btn = document.getElementById(btn);
+	if (! _btn) return;
+	_btn.disabled = !enabled;
+}
+
+function validateFQN(input)
+{
+	return input.match('^[a-zA-Z_][a-zA-Z0-9_]*\\.[a-zA-Z_][a-z0-9_]*$');
+}
+
+function validateIdent(input)
+{
+	return input.match('^[a-zA-Z_][a-zA-Z0-9_]*$');
+}
+</script>
+
 <h2>Currently Selected Tests</h2>
 <div class="frame">
 <form action="<%uri_config%>" method="post">
@@ -12,25 +31,25 @@
 <h2>Add Test Classes</h2>
 <div class="frame">
 <form action="<%uri_config%>" method="post">
-<h3>Known classes</h3>
 <input type="hidden" name="action" value="add_known" />
 <%known_tests%>
 <button type="submit">add selected tests</button>
-</form>
-
-<hr />
-
-<form action="<%uri_config%>" method="post">
-<input type="hidden" name="action" value="add_single" />
-<label for="classname">Class name</label> <input type="text" name="classname" id="classname" size="40"  title="The fully qualified name of the class: package.class" /> <button type="submit">add</button>
 </form>
 </div>
 
 <h2>Find Tests</h2>
 <div class="frame">
+
+<form action="<%uri_config%>" method="post">
+<input type="hidden" name="action" value="add_single" />
+<label for="classname">Class name</label> <input type="text" name="classname" id="classname" size="40"  title="The fully qualified name of the class: package.class" onkeyup="EnableButton('findClassBtn', validateFQN(this.value))" /> <button type="submit" id="findClassBtn">look up class</button>
+</form>
+
+<hr />
+
 <form action="<%uri_config%>" method="post">
 <input type="hidden" name="action" value="find" />
-<label for="packagename">Package name</label> <input type="text" name="packagename" id="packagename" size="40" title="The name of a package to search in. No guarantee on a success." /> <button type="submit">find</button>
+<label for="packagename">Package name</label> <input type="text" name="packagename" id="packagename" size="40" title="The name of a package to search in. No guarantee on a success." onkeyup="EnableButton('findPackageBtn', validateIdent(this.value))" /> <button type="submit" id="findPackageBtn">find classes</button>
 </form>
 </div>
 
@@ -39,5 +58,12 @@
 </div>
 
 <em>Not completely implemented</em>
+
+
+
+<script type="text/javascript">
+EnableButton('findClassBtn', document.getElementById('classname').value);
+EnableButton('findPackageBtn', document.getElementById('packagename').value);
+</script>
 
 <!-- #include file="usunit_footer.inc" -->
