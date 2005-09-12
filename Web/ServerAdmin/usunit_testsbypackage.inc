@@ -1,4 +1,4 @@
 <fieldset>
 <legend><%package_name%></legend>
-<%tests%>
+<%package_tests%>
 </fieldset>

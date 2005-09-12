@@ -9,7 +9,7 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: UsUnitWebQueryHandler.uc,v 1.8 2005/09/11 11:48:56 elmuerte Exp $ -->
+    <!-- $Id: UsUnitWebQueryHandler.uc,v 1.9 2005/09/12 07:57:00 elmuerte Exp $ -->
 *******************************************************************************/
 
 class UsUnitWebQueryHandler extends xWebQueryHandler;
@@ -27,6 +27,11 @@ var Output_WebAdmin OutputModule;
 
 /** the urls for the various pages */
 var string uri_css, uri_menu, uri_controls, uri_results, uri_about, uri_config;
+
+static final function string GetPackageName(string FQN)
+{
+    return Left(FQN, InStr(FQN, "."));
+}
 
 function bool Query(WebRequest Request, WebResponse Response)
 {
@@ -138,11 +143,67 @@ function QueryResults(WebRequest Request, WebResponse Response)
 
 function QueryConfig(WebRequest Request, WebResponse Response)
 {
-    local int i;
-    local string res;
+    local int i, j;
+    local string res, res2, pkgname;
+    local array< class<TestBase> > FoundClasses;
+    local array<string> Errors, Messages;
+
+    if (Request.GetVariable("action", "") ~= "find_package")
+    {
+        res = Request.GetVariable("packagename", "");
+        if (res != "")
+        {
+            i = Utils.FindTestClasses(res, FoundClasses, Level.Game);
+            if (i == -1)
+            {
+                Errors[Errors.length] = "Package '"$res$"' doesn't exist.";
+            }
+            else if (i == -2)
+            {
+                Messages[Messages.length] = "Package '"$res$"' was already loaded, not all classes might have been found.";
+            }
+            else if (i == 0)
+            {
+                Messages[Messages.length] = "No test classes in the package '"$res$"'.";
+            }
+            else for (i = 0; i < FoundClasses.length; i++)
+                log("> "$FoundClasses[i]);
+        }
+    }
+
+    // end processing //
+
 
     DefSubst(Request, Response);
     Response.Subst("title", "Configuration");
+
+    res = "";
+    for (i = 0; i < Errors.length; i++)
+    {
+        res = res$"<li>"$Errors[i]$"</li>";
+    }
+    if (res != "")
+    {
+        Response.Subst("message_title", "Errors");
+        Response.Subst("message_class", "errors");
+        Response.Subst("message_entries", res);
+        Response.Subst("errors", Response.LoadParsedUHTM(Path $ SkinPath $ "/" $ "usunit_messages.inc"));
+    }
+    else Response.Subst("errors", "");
+
+    res = "";
+    for (i = 0; i < Messages.length; i++)
+    {
+        res = res$"<li>"$Messages[i]$"</li>";
+    }
+    if (res != "")
+    {
+        Response.Subst("message_title", "Messages");
+        Response.Subst("message_class", "messages");
+        Response.Subst("message_entries", res);
+        Response.Subst("messages", Response.LoadParsedUHTM(Path $ SkinPath $ "/" $ "usunit_messages.inc"));
+    }
+    else Response.Subst("messages", "");
 
     res = "";
     for (i = 0; i < Runner.TestClasses.length; i++)
@@ -150,6 +211,7 @@ function QueryConfig(WebRequest Request, WebResponse Response)
         Response.Subst("check_name", "SelectedTests_"$string(i));
         Response.Subst("check_value", string(Runner.TestClasses[i]));
         Response.Subst("check_checked", "");
+        Response.Subst("check_style", "");
         Response.Subst("check_id", string(i));
         Response.Subst("check_label", Runner.TestClasses[i].default.TestName$" (<code>"$string(Runner.TestClasses[i])$"</code>)");
         if (i > 0) Response.Subst("updown_up", "");
@@ -160,6 +222,51 @@ function QueryConfig(WebRequest Request, WebResponse Response)
         res = res $ Response.LoadParsedUHTM(Path $ SkinPath $ "/" $ "usunit_updown.inc") $ Response.LoadParsedUHTM(Path $ SkinPath $ "/" $ "usunit_checkbox.inc");
     }
     Response.Subst("selected_tests", res);
+
+    res = "";
+    pkgname = "";
+    for (i = 0; i < Utils.KnownTestClasses.length; i++)
+    {
+        if (pkgname != GetPackageName(Utils.KnownTestClasses[i]))
+        {
+            if (pkgname != "")
+            {
+                Response.Subst("package_name", pkgname);
+                Response.Subst("package_tests", res2);
+                res = res $ Response.LoadParsedUHTM(Path $ SkinPath $ "/" $ "usunit_testsbypackage.inc");
+            }
+            res2 = "";
+            pkgname = GetPackageName(Utils.KnownTestClasses[i]);
+        }
+
+        Response.Subst("check_name", "KnownTests_"$string(i));
+        Response.Subst("check_value", Utils.KnownTestClasses[i]);
+        Response.Subst("check_checked", "");
+        Response.Subst("check_style", "");
+        Response.Subst("check_id", string(i));
+        Response.Subst("check_label", "<code>"$Utils.KnownTestClasses[i]$"</code>");
+
+        for (j = 0; j < FoundClasses.length; j++)
+        {
+            if (string(FoundClasses[j]) ~= Utils.KnownTestClasses[i])
+            {
+                Response.Subst("check_style", "new");
+                FoundClasses.remove(j, 1);
+                break;
+            }
+        }
+
+        res2 = res2 $ Response.LoadParsedUHTM(Path $ SkinPath $ "/" $ "usunit_checkbox.inc");
+    }
+    if (res2 != "")
+    {
+        Response.Subst("package_name", pkgname);
+        Response.Subst("package_tests", res2);
+        res = res $ Response.LoadParsedUHTM(Path $ SkinPath $ "/" $ "usunit_testsbypackage.inc");
+    }
+    Response.Subst("known_tests", res);
+
+
 
     ShowPage(Response, uri_config);
 }

@@ -1,5 +1,8 @@
 <!-- #include file="usunit_header.inc" -->
 
+<%errors%>
+<%messages%>
+
 <script type="text/javascript">
 function EnableButton(btn, enabled)
 {
@@ -41,14 +44,14 @@ function validateIdent(input)
 <div class="frame">
 
 <form action="<%uri_config%>" method="post">
-<input type="hidden" name="action" value="add_single" />
+<input type="hidden" name="action" value="find_single" />
 <label for="classname">Class name</label> <input type="text" name="classname" id="classname" size="40"  title="The fully qualified name of the class: package.class" onkeyup="EnableButton('findClassBtn', validateFQN(this.value))" /> <button type="submit" id="findClassBtn">look up class</button>
 </form>
 
 <hr />
 
 <form action="<%uri_config%>" method="post">
-<input type="hidden" name="action" value="find" />
+<input type="hidden" name="action" value="find_package" />
 <label for="packagename">Package name</label> <input type="text" name="packagename" id="packagename" size="40" title="The name of a package to search in. No guarantee on a success." onkeyup="EnableButton('findPackageBtn', validateIdent(this.value))" /> <button type="submit" id="findPackageBtn">find classes</button>
 </form>
 </div>
