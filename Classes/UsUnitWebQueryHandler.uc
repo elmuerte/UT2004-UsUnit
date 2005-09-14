@@ -9,7 +9,7 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: UsUnitWebQueryHandler.uc,v 1.9 2005/09/12 07:57:00 elmuerte Exp $ -->
+    <!-- $Id: UsUnitWebQueryHandler.uc,v 1.10 2005/09/14 13:04:22 elmuerte Exp $ -->
 *******************************************************************************/
 
 class UsUnitWebQueryHandler extends xWebQueryHandler;
@@ -26,7 +26,8 @@ var class<Output_WebAdmin> OutputModuleClass;
 var Output_WebAdmin OutputModule;
 
 /** the urls for the various pages */
-var string uri_css, uri_menu, uri_controls, uri_results, uri_about, uri_config;
+var string uri_css, uri_menu, uri_controls, uri_results, uri_about, uri_config,
+    uri_testinfo;
 
 static final function string GetPackageName(string FQN)
 {
@@ -62,8 +63,10 @@ function bool Query(WebRequest Request, WebResponse Response)
             ShowPage(Response, uri_about);
             return true;
         case uri_config:
-            DefSubst(Request, Response);
             QueryConfig(Request, Response);
+            return true;
+        case uri_testinfo:
+            QueryTestInfo(Request, Response);
             return true;
     }
     return false;
@@ -77,6 +80,7 @@ function DefSubst(WebRequest Request, WebResponse Response)
     Response.Subst("uri_results",   uri_results);
     Response.Subst("uri_config",    uri_config);
     Response.Subst("uri_about",     uri_about);
+    Response.Subst("uri_testinfo",  uri_testinfo);
     Response.Subst("title",         "");
     Response.Subst("VERSION",       class'TestBase'.default.USUNIT_VERSION);
 }
@@ -99,7 +103,9 @@ function QueryControls(WebRequest Request, WebResponse Response)
     str $= "<ol>";
     for (i = 0; i < Runner.TestClasses.length; i++)
     {
-        str @= "<li>"$Runner.TestClasses[i].default.TestName$" (<code>"$string(Runner.TestClasses[i])$"</code>)</li>";
+        Response.Subst("testinfo_class", string(Runner.TestClasses[i]));
+        str @= "<li>"$Runner.TestClasses[i].default.TestName$" (<code>"$string(Runner.TestClasses[i])$"</code>)" $
+            Response.LoadParsedUHTM(Path $ SkinPath $ "/" $ "usunit_testinfolink.inc")$"</li>";
     }
     str $= "</ol>";
     if (Runner.TestClasses.length > 0) Response.Subst("tests", str);
@@ -146,6 +152,7 @@ function QueryConfig(WebRequest Request, WebResponse Response)
     local int i, j;
     local string res, res2, pkgname;
     local array< class<TestBase> > FoundClasses;
+    local class<Object> cls;
     local array<string> Errors, Messages;
 
     if (Request.GetVariable("action", "") ~= "find_package")
@@ -168,6 +175,35 @@ function QueryConfig(WebRequest Request, WebResponse Response)
             }
             else for (i = 0; i < FoundClasses.length; i++)
                 log("> "$FoundClasses[i]);
+        }
+    }
+    if (Request.GetVariable("action", "") ~= "find_single")
+    {
+        res = Request.GetVariable("classname", "");
+        if (res != "") //todo, check FQN
+        {
+            cls = class<Object>(DynamicLoadObject(res, class'class', true));
+            if (cls == none)
+            {
+                Errors[Errors.length] = "Class '"$res$"' doesn't exist.";
+            }
+            else if (class<TestBase>(cls) == none) {
+                Errors[Errors.length] = "Class '"$res$"' is not a valid test class.";
+            }
+            else {
+                FoundClasses[0] = class<TestBase>(cls);
+                if (! Runner.isValidTestClass(FoundClasses[0]))
+                {
+                    Errors[Errors.length] = "Class '"$res$"' is not a valid test class.";
+                    FoundClasses.remove(0,1);
+                }
+                else {
+                    Utils.AddKnownTestClass(cls);
+                }
+            }
+        }
+        else {
+            Errors[Errors.length] = "Not a valid class name '"$res$"'. It should be in the form <em>package.class</em>.";
         }
     }
 
@@ -219,7 +255,12 @@ function QueryConfig(WebRequest Request, WebResponse Response)
         if (i < Runner.TestClasses.length-1) Response.Subst("updown_down", "");
             else Response.Subst("updown_down", "disabled=\"disabled\"");
         Response.Subst("updown_id", string(i));
-        res = res $ Response.LoadParsedUHTM(Path $ SkinPath $ "/" $ "usunit_updown.inc") $ Response.LoadParsedUHTM(Path $ SkinPath $ "/" $ "usunit_checkbox.inc");
+        Response.Subst("testinfo_class", string(Runner.TestClasses[i]));
+        res = res $
+            Response.LoadParsedUHTM(Path $ SkinPath $ "/" $ "usunit_updown.inc") $
+            Response.LoadParsedUHTM(Path $ SkinPath $ "/" $ "usunit_checkbox.inc") $
+            Response.LoadParsedUHTM(Path $ SkinPath $ "/" $ "usunit_testinfolink.inc") $
+            "<br />";
     }
     Response.Subst("selected_tests", res);
 
@@ -245,6 +286,7 @@ function QueryConfig(WebRequest Request, WebResponse Response)
         Response.Subst("check_style", "");
         Response.Subst("check_id", string(i));
         Response.Subst("check_label", "<code>"$Utils.KnownTestClasses[i]$"</code>");
+        Response.Subst("testinfo_class", Utils.KnownTestClasses[i]);
 
         for (j = 0; j < FoundClasses.length; j++)
         {
@@ -256,7 +298,10 @@ function QueryConfig(WebRequest Request, WebResponse Response)
             }
         }
 
-        res2 = res2 $ Response.LoadParsedUHTM(Path $ SkinPath $ "/" $ "usunit_checkbox.inc");
+        res2 = res2 $
+            Response.LoadParsedUHTM(Path $ SkinPath $ "/" $ "usunit_checkbox.inc") $
+            Response.LoadParsedUHTM(Path $ SkinPath $ "/" $ "usunit_testinfolink.inc") $
+            "<br />";
     }
     if (res2 != "")
     {
@@ -269,6 +314,14 @@ function QueryConfig(WebRequest Request, WebResponse Response)
 
 
     ShowPage(Response, uri_config);
+}
+
+function QueryTestInfo(WebRequest Request, WebResponse Response)
+{
+    DefSubst(Request, Response);
+    Response.Subst("title", "Test Information");
+
+    ShowPage(Response, uri_testinfo);
 }
 
 function GetTestRunner()
@@ -330,4 +383,5 @@ defaultproperties
     uri_results="usunit_results"
     uri_config="usunit_config"
     uri_about="usunit_about"
+    uri_testinfo="usunit_testinfo"
 }

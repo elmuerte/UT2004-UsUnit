@@ -1,0 +1,1 @@
+ [<a href="<%uri_testinfo%>?class=<%testinfo_class%>" onclick="window.open('<%uri_testinfo%>?class=<%testinfo_class%>', 'TestInfo', 'width=400,height=300,resizable=1,scrollbars=1'); return false;" title="Show information about this test.">?</a>]
