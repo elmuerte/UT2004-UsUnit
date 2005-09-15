@@ -9,7 +9,7 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: UsUnitWebQueryHandler.uc,v 1.10 2005/09/14 13:04:22 elmuerte Exp $ -->
+    <!-- $Id: UsUnitWebQueryHandler.uc,v 1.11 2005/09/15 11:20:47 elmuerte Exp $ -->
 *******************************************************************************/
 
 class UsUnitWebQueryHandler extends xWebQueryHandler;
@@ -111,7 +111,7 @@ function QueryControls(WebRequest Request, WebResponse Response)
     if (Runner.TestClasses.length > 0) Response.Subst("tests", str);
         else Response.Subst("tests", "<em>none</em>");
 
-    if (Runner.isRunning()) Response.Subst("startcmd", "disabled=\"disabled\"");
+    if (Runner.isRunning()) Response.Subst("startcmd", "disabled=\"disabled\" title=\"Tests are still running\"");
     else Response.Subst("startcmd", "");
 
     ShowPage(Response, uri_controls);
@@ -318,8 +318,39 @@ function QueryConfig(WebRequest Request, WebResponse Response)
 
 function QueryTestInfo(WebRequest Request, WebResponse Response)
 {
+    local string cls, res;
+    local class<TestBase> tc;
+    local int i;
+
     DefSubst(Request, Response);
     Response.Subst("title", "Test Information");
+
+    cls = Request.GetVariable("class", "");
+    if (cls != "")
+        tc = class<TestBase>(DynamicLoadObject(cls, class'Class', true));
+    if (tc != none)
+    {
+        Response.Subst("test_title", tc.default.TestName);
+        Response.Subst("test_class", string(tc));
+        Response.Subst("test_description", tc.default.TestDescription);
+        if (class<TestSuite>(tc) != none)
+        {
+            for (i = 0; i < class<TestSuite>(tc).default.TestClasses.length; i++)
+            {
+                Response.Subst("testinfo_class", string(class<TestSuite>(tc).default.TestClasses[i]));
+                res = res $ "<code>" $ string(class<TestSuite>(tc).default.TestClasses[i]) $ "</code>" $
+                    Response.LoadParsedUHTM(Path $ SkinPath $ "/" $ "usunit_testinfolink.inc") $
+                    "<br />";
+            }
+            Response.Subst("test_childs", res);
+        }
+        else {
+            Response.Subst("test_childs", "Not a test suite.");
+        }
+    }
+    else {
+        Response.Subst("test_title", "<span class=\"errors\">Not a valid test class '"$cls$"'</span>");
+    }
 
     ShowPage(Response, uri_testinfo);
 }
