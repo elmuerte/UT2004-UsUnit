@@ -1,1 +1,1 @@
-<button type="submit" name="up" value="<%updown_id%>" <%updown_up%>>&uarr;</button><button type="submit" name="down" value="<%updown_id%>" <%updown_down%>>&darr;</button>
+<a class="button <%updown_up%>" href="?up=<%updown_id%>">&uarr;</a><a class="button <%updown_down%>" href="?down=<%updown_id%>">&darr;</a>

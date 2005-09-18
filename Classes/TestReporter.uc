@@ -9,7 +9,7 @@
 
 	This program is free software; you can redistribute and/or modify
 	it under the terms of the Lesser Open Unreal Mod License.
-	<!-- $Id: TestReporter.uc,v 1.7 2005/06/27 10:07:27 elmuerte Exp $ -->
+	<!-- $Id: TestReporter.uc,v 1.8 2005/09/18 09:49:51 elmuerte Exp $ -->
 *******************************************************************************/
 class TestReporter extends Info config(UsUnit);
 
@@ -27,6 +27,16 @@ var protected array<ReporterOutputModule> OutputModules;
 
 /** will be used to report the file+check line when the last check failed */
 var protected string LastCheckMsg;
+
+struct StatsStruct
+{
+    var float TotalTime;
+    var int TotalTests;
+    var int TotalCheck;
+    var int TotalFail;
+};
+/** statistics of the last test cycle */
+var StatsStruct Stats;
 
 event PreBeginPlay()
 {
@@ -50,23 +60,27 @@ event PreBeginPlay()
 // Add a runtime output module
 function ReporterOutputModule AddOutputModule(class<ReporterOutputModule> omc)
 {
-    local ReporterOutputModule om;
-    om = new(self) omc;
-    OutputModules.length = OutputModules.length+1;
+	local ReporterOutputModule om;
+	om = new(self) omc;
+	OutputModules.length = OutputModules.length+1;
 	OutputModules[OutputModules.length-1] = om;
 	return om;
 }
 
 function bool RemoveOutputModule(ReporterOutputModule om)
 {
-    //TODO:
-    return false;
+	//TODO:
+	return false;
 }
 
 /** called when the total test starts */
 function start()
 {
 	local int i;
+    Stats.TotalCheck = 0;
+    Stats.TotalFail = 0;
+    Stats.TotalTests = 0;
+    Stats.TotalTime = 0;
 	Stack.length = 0;
 	for (i = 0; i < OutputModules.length; i++)
 		OutputModules[i].start();
@@ -89,6 +103,8 @@ function end()
 function push(TestBase item)
 {
 	local int i;
+	if (item.IsA('TestCase'))
+        Stats.TotalTests++;
 	Stack.insert(0, 1);
 	Stack[0] = item;
 	for (i = 0; i < OutputModules.length; i++)
@@ -121,6 +137,10 @@ function pop(TestBase item)
 protected function _pop()
 {
 	local int i;
+	if (Stack[0].IsA('TestCase'))
+    {
+        Stats.TotalTime += Stack[0].TestTime;
+    }
 	for (i = 0; i < OutputModules.length; i++)
 		OutputModules[i].testEnd(Stack[0]);
 	Stack.remove(0, 1);
@@ -129,6 +149,7 @@ protected function _pop()
 function reportCheck(int CheckId, coerce string Message)
 {
 	local int i;
+	Stats.TotalCheck++;
 	LastCheckMsg = Message;
 	for (i = 0; i < OutputModules.length; i++)
 		OutputModules[i].reportCheck(CheckId, Message);
@@ -137,6 +158,7 @@ function reportCheck(int CheckId, coerce string Message)
 function reportFail(int CheckId, int FailCount)
 {
 	local int i;
+	Stats.TotalFail++;
 	i = InStr(LastCheckMsg, chr(3));
 	if ((i > -1) && (bGenerateLogErrors))
 	{
