@@ -1,6 +1,7 @@
 /*******************************************************************************
     UsUnitWebQueryHandler
-    Web Query handler. ALPHA
+    WebAdmin interface for UsUnit. It allows you to run tests, configure it and
+    view the results.
 
     Written by: Michiel "El Muerte" Hendriks <elmuerte@drunksnipers.com>
 
@@ -9,7 +10,7 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: UsUnitWebQueryHandler.uc,v 1.13 2005/09/18 15:47:57 elmuerte Exp $ -->
+    <!-- $Id: UsUnitWebQueryHandler.uc,v 1.14 2005/09/19 09:29:10 elmuerte Exp $ -->
 *******************************************************************************/
 
 class UsUnitWebQueryHandler extends xWebQueryHandler;
@@ -364,6 +365,7 @@ function QueryConfig(WebRequest Request, WebResponse Response)
         res = res $ Response.LoadParsedUHTM(Path $ SkinPath $ "/" $ "usunit_testsbypackage.inc");
     }
     Response.Subst("known_tests", res);
+
 
 
 
