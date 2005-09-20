@@ -10,19 +10,27 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: ConvertPlayInfoToHTML.uc,v 1.1 2005/09/19 09:29:10 elmuerte Exp $ -->
+    <!-- $Id: ConvertPlayInfoToHTML.uc,v 1.2 2005/09/20 21:43:26 elmuerte Exp $ -->
 *******************************************************************************/
 class ConvertPlayInfoToHTML extends Object;
 
 /** includes files for various PlayInfo types */
 var(Includes) string incEntry, incTypeCheck, incTypeRadio, incTypeText,
-    incTypePassword, incTypeSelect, incTypeSelectOption;
+    incTypePassword, incTypeSelect, incTypeSelectOption, incGroupBegin,
+    incGroupEnd;
 
 /** this array will contain the results, one line per entry */
 var array<string> Results;
 
-/** */
-delegate bool ShowProperty(PlayInfo PI, idx)
+/** prefix for the replacement variables */
+const PREFIX = "PI.";
+
+var string IncludePath;
+
+var bool ShowGroups;
+
+/** return false to not include a variable */
+delegate bool ShowProperty(PlayInfo PI, int idx)
 {
     return true;
 }
@@ -33,48 +41,164 @@ delegate bool ShowProperty(PlayInfo PI, idx)
     request will also be stored (in case they where encountered). filter can
     be used to only show a certain group.
 */
-function bool ParsePlayInfo(PlayInfo PI, WebResponse Response,
+function bool ParsePlayInfo(PlayInfo PI, WebResponse Response, string Path,
     optional WebRequest Request, optional string filter)
 {
     local int i;
+    local string NewVal, prevGroup;
+    local bool unparsed;
 
-    Result.length == 0;
-    for (i = 0; i < PI.Settings; i++)
+    IncludePath = Path;
+    Results.length = 0;
+    for (i = 0; i < PI.Settings.length; i++)
     {
         if (ShowProperty(PI, i) && ((filter == "") || (PI.Settings[i].Grouping ~= filter)))
         {
+            if (Request != none)
+            {
+                if (PI.Settings[i].ArrayDim >= 0)
+                {
+                    // compose array
+                }
+                else if (PI.Settings[i].bStruct)
+                {
+                    // compose struct !?
+                }
+                else NewVal = class'UTServerAdmin'.static.HTMLDecode(Request.GetVariable(PI.Settings[i].SettingName, "")); //TODO: undefined
+                PI.StoreSetting(i, NewVal, PI.Settings[i].Data);
+            }
+            if (PI.Settings[i].bStruct) continue; // not supported yet?
+
+            unparsed = false;
+            NewVal = "";
             switch (PI.Settings[i].RenderType)
             {
                 case PIT_Check:
-                    renderCheck(PI, i, Response);
+                    renderCheck(PI, i, Response, NewVal);
                     break;
                 case PIT_Select:
-                    renderSelect(PI, i, Response);
+                    renderSelect(PI, i, Response, NewVal);
                     break;
                 case PIT_Text:
-                    renderText(PI, i, Response);
+                    renderText(PI, i, Response, NewVal);
                     break;
                 case PIT_Custom:
-                    if (renderCustom(PI, i, Response)) break;
-                else continue; // unable to render this
+                    if (renderCustom(PI, i, Response, NewVal)) break;
+                default: unparsed = true; // unable to render this
             }
+            if (unparsed) continue;
+
+            if (ShowGroups && (prevGroup != PI.Settings[i].Grouping))
+            {
+                if (prevGroup != "") Results[Results.length] = Response.LoadParsedUHTM(IncludePath $ incGroupEnd);
+                prevGroup = PI.Settings[i].Grouping;
+                //Response.Subst(PREFIX$"Grouping", prevGroup); this is already set
+                Results[Results.length] = Response.LoadParsedUHTM(IncludePath $ incGroupBegin);
+            }
+
+            Response.Subst(PREFIX$"InputField", NewVal);
+            Results[Results.length] = Response.LoadParsedUHTM(IncludePath $ incEntry);
         }
     }
     return true;
 }
 
-function renderCheck(PlayInfo PI, int idx, WebResponse Response);
+function defaultSubst(PlayInfo PI, int idx, WebResponse Response)
+{
+    Response.Subst(PREFIX$"SettingName", PI.Settings[idx].SettingName);
+    Response.Subst(PREFIX$"DisplayName", PI.Settings[idx].DisplayName);
+    Response.Subst(PREFIX$"Description", PI.Settings[idx].Description);
+    Response.Subst(PREFIX$"Data", PI.Settings[idx].Data);
+    Response.Subst(PREFIX$"ExtraPriv", PI.Settings[idx].ExtraPriv);
+    Response.Subst(PREFIX$"Grouping", PI.Settings[idx].Grouping);
+    Response.Subst(PREFIX$"SecLevel", PI.Settings[idx].SecLevel);
+    Response.Subst(PREFIX$"Value", PI.Settings[idx].Value);
+    Response.Subst(PREFIX$"Weight", PI.Settings[idx].Weight);
+    Response.Subst(PREFIX$"ClassFrom", PI.Settings[idx].ClassFrom);
+}
 
-function renderSelect(PlayInfo PI, int idx, WebResponse Response);
+function renderCheck(PlayInfo PI, int idx, WebResponse Response, out string result)
+{
+    // no such thing as bool arrays
+    defaultSubst(PI, idx, Response);
+    if (PI.Settings[idx].Value != "")
+        Response.Subst(PREFIX$"Checked", "checked=\"checked\"");
+    else
+        Response.Subst(PREFIX$"Checked", "");
+    result = Response.LoadParsedUHTM(IncludePath $ incTypeCheck);
+}
 
-function renderText(PlayInfo PI, int idx, WebResponse Response);
+function renderSelect(PlayInfo PI, int idx, WebResponse Response, out string result)
+{
+}
 
-function renderCustom(PlayInfo PI, int idx, WebResponse Response)
+function renderText(PlayInfo PI, int idx, WebResponse Response, out string result)
+{
+    local array<string> entries;
+    local int i;
+
+    defaultSubst(PI, idx, Response);
+    if (PI.Settings[idx].ArrayDim == -1)
+    {
+        result = result $ Response.LoadParsedUHTM(IncludePath $ incTypeText);
+        return;
+    }
+    else {
+        SplitArray(PI.Settings[idx].Value, entries);
+        if (PI.Settings[idx].ArrayDim > 0) entries.length = PI.Settings[idx].ArrayDim;
+        else entries[entries.length] = ""; // to add an extra field for dynamic arrays
+    }
+    for (i = 0; i < entries.length; i++)
+    {
+        Response.Subst(PREFIX$"Value", entries[i]);
+        result = result $ Response.LoadParsedUHTM(IncludePath $ incTypeText);
+    }
+}
+
+function bool renderCustom(PlayInfo PI, int idx, WebResponse Response, out string result)
 {
     return false;
 }
 
+static function SplitArray(string in, out array<string> res)
+{
+    local int i;
+    local string tmp;
+    local bool isStrings;
+
+    isStrings = Left(in, 2) == "(\"";
+    in = Mid(in, 1, len(in)-2); // strip ()
+    i = InStr(in, ",");
+    while (i > 0)
+    {
+        if (isStrings && InStr(Mid(in, 1), "\"") > i) // a comma inside a string
+        {
+            i++;
+            while (Mid(in, i, 1) != "\"")
+            {
+                i++;
+                if (Mid(in, i, 1) == "\\") i++; // escaped
+            }
+            i++; // to be on the , spot
+        }
+        tmp = Left(in, i);
+        in = Mid(in, i+1);
+        if (isStrings && Left(tmp, 1) == "\"") tmp = Mid(tmp, 1, len(tmp)-2); // strip "
+        res[res.length] = tmp;
+        i = InStr(in, ",");
+    }
+    if (isStrings && Left(in, 1) == "\"") in = Mid(in, 1, len(in)-2); // strip "
+    res[res.length] = in;
+}
+
 defaultProperties
 {
+    ShowGroups=true
 
+    incEntry="usunit_pi_entry.inc"
+    incTypeCheck="usunit_pi_typecheck.inc"
+    incTypeRadio="usunit_pi_typeradio.inc"
+    incTypeText="usunit_pi_typetext.inc"
+    incGroupBegin="usunit_pi_groupbegin.inc"
+    incGroupEnd="usunit_pi_groupend.inc"
 }

@@ -1,0 +1,1 @@
+<input type="checkbox" name="<%PI.SettingName%>" value="1" <%checked%> />

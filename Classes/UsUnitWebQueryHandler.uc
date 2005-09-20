@@ -10,7 +10,7 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: UsUnitWebQueryHandler.uc,v 1.14 2005/09/19 09:29:10 elmuerte Exp $ -->
+    <!-- $Id: UsUnitWebQueryHandler.uc,v 1.15 2005/09/20 21:43:26 elmuerte Exp $ -->
 *******************************************************************************/
 
 class UsUnitWebQueryHandler extends xWebQueryHandler;
@@ -29,6 +29,9 @@ var Output_WebAdmin OutputModule;
 /** the urls for the various pages */
 var string uri_css, uri_menu, uri_controls, uri_results, uri_about, uri_config,
     uri_testinfo;
+
+var PlayInfo Settings;
+var ConvertPlayInfoToHTML PI2HTML;
 
 static final function string GetPackageName(string FQN)
 {
@@ -269,34 +272,6 @@ function QueryConfig(WebRequest Request, WebResponse Response)
     Response.Subst("title", "Configuration");
 
     res = "";
-    for (i = 0; i < Errors.length; i++)
-    {
-        res = res$"<li>"$Errors[i]$"</li>";
-    }
-    if (res != "")
-    {
-        Response.Subst("message_title", "Errors");
-        Response.Subst("message_class", "errors");
-        Response.Subst("message_entries", res);
-        Response.Subst("errors", Response.LoadParsedUHTM(Path $ SkinPath $ "/" $ "usunit_messages.inc"));
-    }
-    else Response.Subst("errors", "");
-
-    res = "";
-    for (i = 0; i < Messages.length; i++)
-    {
-        res = res$"<li>"$Messages[i]$"</li>";
-    }
-    if (res != "")
-    {
-        Response.Subst("message_title", "Messages");
-        Response.Subst("message_class", "messages");
-        Response.Subst("message_entries", res);
-        Response.Subst("messages", Response.LoadParsedUHTM(Path $ SkinPath $ "/" $ "usunit_messages.inc"));
-    }
-    else Response.Subst("messages", "");
-
-    res = "";
     for (i = 0; i < Runner.TestClasses.length; i++)
     {
         Response.Subst("check_name", "SelectedTests[]");
@@ -366,8 +341,52 @@ function QueryConfig(WebRequest Request, WebResponse Response)
     }
     Response.Subst("known_tests", res);
 
+    if (Settings == none)
+        Settings = new class'PlayInfo';
+    Settings.Clear();
+    Runner.static.FillPlayInfo(Settings);
+
+    Settings.Sort(0);
+    if (PI2HTML == none)
+        PI2HTML = new class'ConvertPlayInfoToHTML';
+    if (true)
+        PI2HTML.ParsePlayInfo(Settings, Response, Path $ SkinPath $ "/");
+    else // save
+        PI2HTML.ParsePlayInfo(Settings, Response, Path $ SkinPath $ "/", Request);
+    res = "";
+    for (i = 0; i < PI2HTML.Results.length; i++)
+        res = res$PI2HTML.Results[i];
+    Response.Subst("settings", res);
 
 
+    // show messages\errors -- must be last
+    res = "";
+    for (i = 0; i < Errors.length; i++)
+    {
+        res = res$"<li>"$Errors[i]$"</li>";
+    }
+    if (res != "")
+    {
+        Response.Subst("message_title", "Errors");
+        Response.Subst("message_class", "errors");
+        Response.Subst("message_entries", res);
+        Response.Subst("errors", Response.LoadParsedUHTM(Path $ SkinPath $ "/" $ "usunit_messages.inc"));
+    }
+    else Response.Subst("errors", "");
+
+    res = "";
+    for (i = 0; i < Messages.length; i++)
+    {
+        res = res$"<li>"$Messages[i]$"</li>";
+    }
+    if (res != "")
+    {
+        Response.Subst("message_title", "Messages");
+        Response.Subst("message_class", "messages");
+        Response.Subst("message_entries", res);
+        Response.Subst("messages", Response.LoadParsedUHTM(Path $ SkinPath $ "/" $ "usunit_messages.inc"));
+    }
+    else Response.Subst("messages", "");
 
     ShowPage(Response, uri_config);
 }

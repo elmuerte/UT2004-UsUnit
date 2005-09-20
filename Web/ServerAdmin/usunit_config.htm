@@ -58,6 +58,13 @@ function validateIdent(input)
 
 <h2>Settings</h2>
 <div class="frame">
+<form>
+<input type="hidden" name="action" value="save_settings" />
+<dl>
+<%settings%>
+</dl>
+<button type="submit">Save</button>
+</form>
 </div>
 
 <em>Not completely implemented</em>
