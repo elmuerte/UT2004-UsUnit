@@ -10,14 +10,14 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: ConvertPlayInfoToHTML.uc,v 1.2 2005/09/20 21:43:26 elmuerte Exp $ -->
+    <!-- $Id: ConvertPlayInfoToHTML.uc,v 1.3 2005/09/21 11:29:43 elmuerte Exp $ -->
 *******************************************************************************/
 class ConvertPlayInfoToHTML extends Object;
 
 /** includes files for various PlayInfo types */
-var(Includes) string incEntry, incTypeCheck, incTypeRadio, incTypeText,
-    incTypePassword, incTypeSelect, incTypeSelectOption, incGroupBegin,
-    incGroupEnd;
+var(Includes) string incEntry, incTypeCheck, incTypeText, incTypeSelect,
+    incTypeSelectOption, incGroupBegin, incGroupEnd, incTypeText_NumEdit,
+    incNumEditJS;
 
 /** this array will contain the results, one line per entry */
 var array<string> Results;
@@ -28,6 +28,8 @@ const PREFIX = "PI.";
 var string IncludePath;
 
 var bool ShowGroups;
+
+var protected bool incNumEditJS_included;
 
 /** return false to not include a variable */
 delegate bool ShowProperty(PlayInfo PI, int idx)
@@ -50,6 +52,9 @@ function bool ParsePlayInfo(PlayInfo PI, WebResponse Response, string Path,
 
     IncludePath = Path;
     Results.length = 0;
+
+    incNumEditJS_included = false;
+
     for (i = 0; i < PI.Settings.length; i++)
     {
         if (ShowProperty(PI, i) && ((filter == "") || (PI.Settings[i].Grouping ~= filter)))
@@ -105,6 +110,7 @@ function bool ParsePlayInfo(PlayInfo PI, WebResponse Response, string Path,
 
 function defaultSubst(PlayInfo PI, int idx, WebResponse Response)
 {
+    Response.Subst(PREFIX$"ID", repl(PI.Settings[idx].SettingName, ".", "_"));
     Response.Subst(PREFIX$"SettingName", PI.Settings[idx].SettingName);
     Response.Subst(PREFIX$"DisplayName", PI.Settings[idx].DisplayName);
     Response.Subst(PREFIX$"Description", PI.Settings[idx].Description);
@@ -121,7 +127,7 @@ function renderCheck(PlayInfo PI, int idx, WebResponse Response, out string resu
 {
     // no such thing as bool arrays
     defaultSubst(PI, idx, Response);
-    if (PI.Settings[idx].Value != "")
+    if (PI.Settings[idx].Value ~= "True") //TODO: use localized string?
         Response.Subst(PREFIX$"Checked", "checked=\"checked\"");
     else
         Response.Subst(PREFIX$"Checked", "");
@@ -134,13 +140,37 @@ function renderSelect(PlayInfo PI, int idx, WebResponse Response, out string res
 
 function renderText(PlayInfo PI, int idx, WebResponse Response, out string result)
 {
-    local array<string> entries;
+    local array<string> entries, args;
     local int i;
+    local string incfile;
+
+    incfile = incTypeText;
 
     defaultSubst(PI, idx, Response);
+    Response.Subst(PREFIX$"MaxLength", "");
+    Response.Subst(PREFIX$"Size", "80");
+
+    Split(PI.Settings[idx].Data, ";", args);
+    if (args.Length < 2) args.Length = 2; //set to minimum required number
+    if (args[0] != "")
+    {
+        Response.Subst(PREFIX$"MaxLength", args[0]);
+        Response.Subst(PREFIX$"Size", args[0]);
+    }
+    if (args[1] != "")
+    {
+        if (!incNumEditJS_included)
+        {
+            incNumEditJS_included = true;
+            Results[Results.length] = Response.LoadParsedUHTM(IncludePath $ incNumEditJS);
+        }
+        incfile = incTypeText_NumEdit;
+        Response.Subst(PREFIX$"Range", args[1]);
+    }
+
     if (PI.Settings[idx].ArrayDim == -1)
     {
-        result = result $ Response.LoadParsedUHTM(IncludePath $ incTypeText);
+        result = result $ Response.LoadParsedUHTM(IncludePath $ incfile);
         return;
     }
     else {
@@ -150,8 +180,9 @@ function renderText(PlayInfo PI, int idx, WebResponse Response, out string resul
     }
     for (i = 0; i < entries.length; i++)
     {
+        Response.Subst(PREFIX$"ID", repl(PI.Settings[idx].SettingName, ".", "_")$"_"$string(i));
         Response.Subst(PREFIX$"Value", entries[i]);
-        result = result $ Response.LoadParsedUHTM(IncludePath $ incTypeText);
+        result = result $ Response.LoadParsedUHTM(IncludePath $ incfile);
     }
 }
 
@@ -197,8 +228,9 @@ defaultProperties
 
     incEntry="usunit_pi_entry.inc"
     incTypeCheck="usunit_pi_typecheck.inc"
-    incTypeRadio="usunit_pi_typeradio.inc"
     incTypeText="usunit_pi_typetext.inc"
+    incTypeText_NumEdit="usunit_pi_typetext_numedit.inc"
+    incNumEditJS="usunit_numedit_js.inc"
     incGroupBegin="usunit_pi_groupbegin.inc"
     incGroupEnd="usunit_pi_groupend.inc"
 }

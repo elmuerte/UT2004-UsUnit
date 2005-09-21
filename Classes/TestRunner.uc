@@ -11,7 +11,7 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: TestRunner.uc,v 1.10 2005/09/20 21:43:26 elmuerte Exp $ -->
+    <!-- $Id: TestRunner.uc,v 1.11 2005/09/21 11:29:43 elmuerte Exp $ -->
 *******************************************************************************/
 
 class TestRunner extends TestSuiteBase;
@@ -160,15 +160,14 @@ event PostBeginPlay()
 static function FillPlayInfo(PlayInfo PlayInfo)
 {
     super.FillPlayInfo(PlayInfo);
-    PlayInfo.AddSetting("Test Runner", "fDelayedStart", "Delayed Start", 0, 1, "TEXT", "10;-1;3600");
+    PlayInfo.AddSetting("Test Runner", "fDelayedStart", "Delayed Start", 0, 1, "TEXT", "10;-1.0:3600.0");
     PlayInfo.AddSetting("Test Runner", "bBreakOnFail", "Break On Fail", 0, 1, "CHECK");
-    PlayInfo.AddSetting("Test Runner", "Tests", "Tests", 0, 1, "TEXT");
-    //TODO: next
+    default.ReporterClass.static.FillPlayInfo(PlayInfo);
 }
 
 defaultproperties
 {
-    ReporterClass=class'TestReporter';
+    ReporterClass=class'TestReporter'
     bBreakOnFail=false
     fDelayedStart=0.0
     TestName="Test Runner"
