@@ -11,7 +11,7 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: TestRunner.uc,v 1.11 2005/09/21 11:29:43 elmuerte Exp $ -->
+    <!-- $Id: TestRunner.uc,v 1.12 2005/09/22 13:59:21 elmuerte Exp $ -->
 *******************************************************************************/
 
 class TestRunner extends TestSuiteBase;
@@ -31,6 +31,8 @@ var() config float fDelayedStart;
 
 /** reporter class to use */
 var class<TestReporter> ReporterClass;
+
+var localized string PIText[2], PIDesc[2];
 
 function run()
 {
@@ -160,9 +162,19 @@ event PostBeginPlay()
 static function FillPlayInfo(PlayInfo PlayInfo)
 {
     super.FillPlayInfo(PlayInfo);
-    PlayInfo.AddSetting("Test Runner", "fDelayedStart", "Delayed Start", 0, 1, "TEXT", "10;-1.0:3600.0");
-    PlayInfo.AddSetting("Test Runner", "bBreakOnFail", "Break On Fail", 0, 1, "CHECK");
+    PlayInfo.AddSetting("Test Runner", "fDelayedStart", default.PIText[0], 0, 1, "TEXT", "10;-1.0:3600.0");
+    PlayInfo.AddSetting("Test Runner", "bBreakOnFail", default.PIText[1], 0, 1, "CHECK");
     default.ReporterClass.static.FillPlayInfo(PlayInfo);
+}
+
+static event string GetDescriptionText(string PropName)
+{
+    switch (PropName)
+    {
+        case "fDelayedStart": return default.PIDesc[0];
+        case "bBreakOnFail": return default.PIDesc[1];
+    }
+	return "";
 }
 
 defaultproperties
@@ -172,4 +184,9 @@ defaultproperties
     fDelayedStart=0.0
     TestName="Test Runner"
     TestDescription="Runs the registered tests cases and suites; This is not an actual test."
+
+    PIText[0]="Delayed Start"
+    PIDesc[0]="Number of seconds to wait before starting the runner when it is not created interactively (e.g. not via webadmin or mutator). -1 completely disables the auto start."
+    PIText[1]="Break On Fail"
+    PIDesc[1]="Discontinue testing when a single test case did not have a 100% succesful result."
 }

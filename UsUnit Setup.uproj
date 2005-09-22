@@ -30,6 +30,9 @@ description=The full source code of UsUnit
 UsUnit\Classes\*.uc
 UsUnit\Classes\*.puc
 UsUnit\Classes\*.inc
+[INI]
+name=UT2004.ini
+XWebAdmin.UTServerAdmin,QueryHandlerClasses,UsUnit.UsUnitWebQueryHandler,TRUE
 [Requirement]
 product=UT2004
 version=3186
@@ -39,7 +42,7 @@ versionURL=http://unreal.epicgames.com/
 developerURL=http://www.epicgames.com/
 [Product]
 product=UsUnit
-version=100
+version=101
 developer=Michiel "El Muerte" Hendriks
 productURL=http://wiki.beyondunreal.com/wiki/UsUnit
 versionURL=http://wiki.beyondunreal.com/wiki/UsUnit
@@ -49,4 +52,4 @@ title=UsUnit - UnrealScript Unit Testing Framework
 cleanup=True
 license=UsUnit_LICENSE.int
 logo=UsUnit\logo.bmp
-archive=../UsUnit_v100.ut4mod
+archive=../UsUnit_v101.ut4mod

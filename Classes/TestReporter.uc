@@ -9,7 +9,7 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: TestReporter.uc,v 1.9 2005/09/21 11:29:43 elmuerte Exp $ -->
+    <!-- $Id: TestReporter.uc,v 1.10 2005/09/22 13:59:21 elmuerte Exp $ -->
 *******************************************************************************/
 class TestReporter extends Info config(UsUnit);
 
@@ -27,6 +27,8 @@ var protected array<ReporterOutputModule> OutputModules;
 
 /** will be used to report the file+check line when the last check failed */
 var protected string LastCheckMsg;
+
+var localized string PIText[2], PIDesc[2];
 
 struct StatsStruct
 {
@@ -198,12 +200,27 @@ final static function string PadLeft(coerce string base, coerce string padchar, 
 static function FillPlayInfo(PlayInfo PlayInfo)
 {
     super.FillPlayInfo(PlayInfo);
-    PlayInfo.AddSetting("Test Reporter", "bGenerateLogErrors", "Generate Log Errors", 0, 1, "CHECK");
-    PlayInfo.AddSetting("Test Reporter", "OutputClasses", "Output Classes", 0, 1, "TEXT");
+    PlayInfo.AddSetting("Test Reporter", "bGenerateLogErrors", default.PIText[0], 0, 1, "CHECK");
+    PlayInfo.AddSetting("Test Reporter", "OutputClasses", default.PIText[0], 0, 1, "CUSTOM");
+}
+
+static event string GetDescriptionText(string PropName)
+{
+    switch (PropName)
+    {
+        case "bGenerateLogErrors": return default.PIDesc[0];
+        case "OutputClasses": return default.PIDesc[1];
+    }
+	return "";
 }
 
 defaultproperties
 {
     bGenerateLogErrors=true
     OutputClasses[0]="UsUnit.Output_HTML"
+
+    PIText[0]="Generate Log Errors"
+    PIDesc[0]="Create error log entries about the failed check. Only works well when the filename and line number are included in the check message."
+    PIText[1]="Output Classes"
+    PIDesc[1]="The output classes to use on startup."
 }

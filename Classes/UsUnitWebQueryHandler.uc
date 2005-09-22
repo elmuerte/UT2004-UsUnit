@@ -10,7 +10,7 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: UsUnitWebQueryHandler.uc,v 1.15 2005/09/20 21:43:26 elmuerte Exp $ -->
+    <!-- $Id: UsUnitWebQueryHandler.uc,v 1.16 2005/09/22 13:59:21 elmuerte Exp $ -->
 *******************************************************************************/
 
 class UsUnitWebQueryHandler extends xWebQueryHandler;
@@ -286,7 +286,7 @@ function QueryConfig(WebRequest Request, WebResponse Response)
             else Response.Subst("updown_down", "disabled");
         Response.Subst("updown_id", string(i));
         Response.Subst("testinfo_class", string(Runner.TestClasses[i]));
-        res = res $
+        res $=
             Response.LoadParsedUHTM(Path $ SkinPath $ "/" $ "usunit_updown.inc") $
             Response.LoadParsedUHTM(Path $ SkinPath $ "/" $ "usunit_checkbox.inc") $
             Response.LoadParsedUHTM(Path $ SkinPath $ "/" $ "usunit_testinfolink.inc") $
@@ -337,7 +337,7 @@ function QueryConfig(WebRequest Request, WebResponse Response)
     {
         Response.Subst("package_name", pkgname);
         Response.Subst("package_tests", res2);
-        res = res $ Response.LoadParsedUHTM(Path $ SkinPath $ "/" $ "usunit_testsbypackage.inc");
+        res $= Response.LoadParsedUHTM(Path $ SkinPath $ "/" $ "usunit_testsbypackage.inc");
     }
     Response.Subst("known_tests", res);
 
@@ -349,13 +349,16 @@ function QueryConfig(WebRequest Request, WebResponse Response)
     Settings.Sort(0);
     if (PI2HTML == none)
         PI2HTML = new class'ConvertPlayInfoToHTML';
-    if (true)
-        PI2HTML.ParsePlayInfo(Settings, Response, Path $ SkinPath $ "/");
-    else // save
+    if (Request.GetVariable("action", "") ~= "save_settings") // save
+    {
         PI2HTML.ParsePlayInfo(Settings, Response, Path $ SkinPath $ "/", Request);
+        Settings.SaveSettings();
+    }
+    else
+        PI2HTML.ParsePlayInfo(Settings, Response, Path $ SkinPath $ "/");
     res = "";
     for (i = 0; i < PI2HTML.Results.length; i++)
-        res = res$PI2HTML.Results[i];
+        res $= PI2HTML.Results[i];
     Response.Subst("settings", res);
 
 
@@ -363,7 +366,7 @@ function QueryConfig(WebRequest Request, WebResponse Response)
     res = "";
     for (i = 0; i < Errors.length; i++)
     {
-        res = res$"<li>"$Errors[i]$"</li>";
+        res $= "<li>"$Errors[i]$"</li>";
     }
     if (res != "")
     {
@@ -377,7 +380,7 @@ function QueryConfig(WebRequest Request, WebResponse Response)
     res = "";
     for (i = 0; i < Messages.length; i++)
     {
-        res = res$"<li>"$Messages[i]$"</li>";
+        res $= "<li>"$Messages[i]$"</li>";
     }
     if (res != "")
     {
@@ -413,7 +416,7 @@ function QueryTestInfo(WebRequest Request, WebResponse Response)
             for (i = 0; i < class<TestSuite>(tc).default.TestClasses.length; i++)
             {
                 Response.Subst("testinfo_class", string(class<TestSuite>(tc).default.TestClasses[i]));
-                res = res $ "<code>" $ string(class<TestSuite>(tc).default.TestClasses[i]) $ "</code>" $
+                res $= "<code>" $ string(class<TestSuite>(tc).default.TestClasses[i]) $ "</code>" $
                     Response.LoadParsedUHTM(Path $ SkinPath $ "/" $ "usunit_testinfolink.inc") $
                     "<br />";
             }
@@ -433,14 +436,14 @@ function QueryTestInfo(WebRequest Request, WebResponse Response)
 function GetTestRunner()
 {
     local float OldfDelayedStart;
-    log("GetTestRunner", name);
+    //log("GetTestRunner", name);
 
     if (Runner == none) // find an existing runner, mostlikely not present
         foreach Level.AllActors(class'TestRunner', Runner) break;
 
     if (Runner == none)
     {
-        log("creating new test runner class", name);
+        //log("creating new test runner class", name);
         OldfDelayedStart = class'TestRunner'.default.fDelayedStart;
         class'TestRunner'.default.fDelayedStart = -1;
         Runner = Level.spawn(class'TestRunner');
@@ -455,7 +458,7 @@ function GetTestRunner()
 function HookOutputModule()
 {
     local TestReporter Reporter;
-    log("HookOutputModule", name);
+    //log("HookOutputModule", name);
     // add our reporter
     if (OutputModule == none)
     {

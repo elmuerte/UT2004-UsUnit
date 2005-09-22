@@ -2,6 +2,11 @@
     ConvertPlayInfoToHTML
     Convert the data in a PlayInfo record to HTML data. This is a more
     generalized implementation than given by the default WebAdmin.
+    This also supports array variables (with some limitations). You can use the
+    following array types: dynamic array, static array (string, int, float)
+    Array types MUST use the CUSTOM render type (because of some bugs in the
+    engine an other method isn't possible). The "extra" field in this case
+    contains the same entries as in case of the TEXT render type.
 
     Written by: Michiel "El Muerte" Hendriks <elmuerte@drunksnipers.com>
 
@@ -10,7 +15,7 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: ConvertPlayInfoToHTML.uc,v 1.3 2005/09/21 11:29:43 elmuerte Exp $ -->
+    <!-- $Id: ConvertPlayInfoToHTML.uc,v 1.4 2005/09/22 13:59:21 elmuerte Exp $ -->
 *******************************************************************************/
 class ConvertPlayInfoToHTML extends Object;
 
@@ -63,16 +68,23 @@ function bool ParsePlayInfo(PlayInfo PI, WebResponse Response, string Path,
             {
                 if (PI.Settings[i].ArrayDim >= 0)
                 {
-                    // compose array
+                    NewVal = ConstructArray(Request, PI, i);
+                    PI.StoreSetting(i, NewVal);
                 }
                 else if (PI.Settings[i].bStruct)
                 {
                     // compose struct !?
                 }
-                else NewVal = class'UTServerAdmin'.static.HTMLDecode(Request.GetVariable(PI.Settings[i].SettingName, "")); //TODO: undefined
-                PI.StoreSetting(i, NewVal, PI.Settings[i].Data);
+                else {
+                    NewVal = class'UTServerAdmin'.static.HTMLDecode(Request.GetVariable(PI.Settings[i].SettingName, "")); //TODO: undefined
+                    PI.StoreSetting(i, NewVal, PI.Settings[i].Data);
+                }
             }
-            if (PI.Settings[i].bStruct) continue; // not supported yet?
+            if (PI.Settings[i].bStruct)
+            {
+                Warn("No yet implemented");
+                continue; // not supported yet?
+            }
 
             unparsed = false;
             NewVal = "";
@@ -85,6 +97,10 @@ function bool ParsePlayInfo(PlayInfo PI, WebResponse Response, string Path,
                     renderSelect(PI, i, Response, NewVal);
                     break;
                 case PIT_Text:
+                    if (PI.Settings[i].ArrayDim >= 0)
+                    {
+                        Warn("Using an array property with render type TEXT causes issues, use type CUSTOM (reason: bugs in the engine).");
+                    }
                     renderText(PI, i, Response, NewVal);
                     break;
                 case PIT_Custom:
@@ -136,6 +152,7 @@ function renderCheck(PlayInfo PI, int idx, WebResponse Response, out string resu
 
 function renderSelect(PlayInfo PI, int idx, WebResponse Response, out string result)
 {
+    Warn("No yet implemented");
 }
 
 function renderText(PlayInfo PI, int idx, WebResponse Response, out string result)
@@ -170,7 +187,7 @@ function renderText(PlayInfo PI, int idx, WebResponse Response, out string resul
 
     if (PI.Settings[idx].ArrayDim == -1)
     {
-        result = result $ Response.LoadParsedUHTM(IncludePath $ incfile);
+        result $= Response.LoadParsedUHTM(IncludePath $ incfile);
         return;
     }
     else {
@@ -182,12 +199,25 @@ function renderText(PlayInfo PI, int idx, WebResponse Response, out string resul
     {
         Response.Subst(PREFIX$"ID", repl(PI.Settings[idx].SettingName, ".", "_")$"_"$string(i));
         Response.Subst(PREFIX$"Value", entries[i]);
-        result = result $ Response.LoadParsedUHTM(IncludePath $ incfile);
+        result $= Response.LoadParsedUHTM(IncludePath $ incfile);
     }
 }
 
 function bool renderCustom(PlayInfo PI, int idx, WebResponse Response, out string result)
 {
+    // test for known array types
+    if (PI.Settings[idx].ThisProp.class == class'ArrayProperty'
+        || (PI.Settings[idx].ArrayDim > 0 && (
+                PI.Settings[idx].ThisProp.class == class'StrProperty'
+                || PI.Settings[idx].ThisProp.class == class'IntProperty'
+                || PI.Settings[idx].ThisProp.class == class'FloatProperty')
+            )
+        )
+    {
+        renderText(PI, idx, Response, result);
+        return true;
+    }
+    log("Called renderCustom for "$PI.Settings[idx].ThisProp, name);
     return false;
 }
 
@@ -200,7 +230,7 @@ static function SplitArray(string in, out array<string> res)
     isStrings = Left(in, 2) == "(\"";
     in = Mid(in, 1, len(in)-2); // strip ()
     i = InStr(in, ",");
-    while (i > 0)
+    while (i > -1)
     {
         if (isStrings && InStr(Mid(in, 1), "\"") > i) // a comma inside a string
         {
@@ -220,6 +250,34 @@ static function SplitArray(string in, out array<string> res)
     }
     if (isStrings && Left(in, 1) == "\"") in = Mid(in, 1, len(in)-2); // strip "
     res[res.length] = in;
+}
+
+function string ConstructArray(WebRequest Request, PlayInfo PI, int idx)
+{
+    local string res, tmp;
+    local int i, j;
+    local bool noEmpty;
+    noEmpty = true;
+
+    if (PI.Settings[idx].ArrayDim == 0) j = Request.GetVariableCount(PI.Settings[idx].SettingName);
+    else {
+        j = PI.Settings[idx].ArrayDim;
+        noEmpty = false;
+    }
+
+    for (i = j-1; i >= 0; i--)
+    {
+        tmp = class'UTServerAdmin'.static.HTMLDecode(Request.GetVariableNumber(PI.Settings[idx].SettingName, i, ""));
+        tmp = repl(repl(tmp, "\\", "\\\\"), "\"", "\\\"");
+        if (tmp == "")
+        {
+            if (noEmpty) continue;
+        }
+        else tmp = "\""$tmp$"\"";
+        if (res != "") res = res$",";
+        res $= tmp;
+    }
+    return "("$res$")";
 }
 
 defaultProperties

@@ -6,6 +6,8 @@ function SetEditRange(id, range)
 {
 	EditRanges[id] = range.split(":");
 	EditRanges[id][2] = /[0-9]*\.[0-9]*/.test(range);
+	EditRanges[id][3] = Math.round(Math.abs(EditRanges[id][1]-EditRanges[id][0])/20);
+	if (EditRanges[id][3] < 0) EditRanges[id][3] = 1;
 }
 
 function EditUp(id)
@@ -22,7 +24,7 @@ function EditUp(id)
 		val++;
 	}	
 	if (isNaN(val)) val = 0;
-	if (val > EditRanges[id][1]) return;
+	if (val > EditRanges[id][1]) val = EditRanges[id][1];
 	ctrl.value = val;
 }
 
@@ -40,7 +42,41 @@ function EditDown(id)
 		val--;
 	}
 	if (isNaN(val)) val = 0;
-	if (val < EditRanges[id][0]) return;
+	if (val < EditRanges[id][0]) val = EditRanges[id][0];
+	ctrl.value = val;
+}
+
+function EditPgUp(id)
+{
+	ctrl = document.getElementById(id);
+	if (!ctrl) return;
+	if (EditRanges[id][2])
+	{
+		val = parseFloat(ctrl.value);		
+	}
+	else {
+		val = parseInt(ctrl.value);
+	}
+	val += EditRanges[id][3];
+	if (isNaN(val)) val = 0;
+	if (val > EditRanges[id][1]) val = EditRanges[id][1];
+	ctrl.value = val;
+}
+
+function EditPgDown(id)
+{
+	ctrl = document.getElementById(id);
+	if (!ctrl) return;
+	if (EditRanges[id][2])
+	{
+		val = parseFloat(ctrl.value);
+	}
+	else {
+		val = parseInt(ctrl.value);
+	}
+	val -= EditRanges[id][3];
+	if (isNaN(val)) val = 0;
+	if (val < EditRanges[id][0]) val = EditRanges[id][0];
 	ctrl.value = val;
 }
 
@@ -69,6 +105,8 @@ function EditOnKeyDown(id, e)
 	else if (keynum == 40) EditDown(id); //down
 	else if (keynum == 36) EditHome(id); // home
 	else if (keynum == 35) EditEnd(id); // end
+	else if (keynum == 33) EditPgUp(id); // home
+	else if (keynum == 34) EditPgDown(id); // end
 	return false;
 }
 
