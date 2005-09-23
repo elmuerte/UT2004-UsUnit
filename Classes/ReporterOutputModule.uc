@@ -1,15 +1,19 @@
 /*******************************************************************************
     ReporterOutputModule
+<p>
     Base class for output module
-
-    Written by: Michiel "El Muerte" Hendriks <elmuerte@drunksnipers.com>
-
-    UsUnit Testing Framework
+</p>
+<p>
+    Written by: Michiel "El Muerte" Hendriks &lt;elmuerte@drunksnipers.com&gt;
+</p>
+<p>
+    UsUnit Testing Framework -
     Copyright (C) 2005, Michiel "El Muerte" Hendriks
+</p>
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: ReporterOutputModule.uc,v 1.3 2005/06/24 16:28:58 elmuerte Exp $ -->
+    <!-- $Id: ReporterOutputModule.uc,v 1.4 2005/09/23 09:23:41 elmuerte Exp $ -->
 *******************************************************************************/
 
 class ReporterOutputModule extends Object within TestReporter;

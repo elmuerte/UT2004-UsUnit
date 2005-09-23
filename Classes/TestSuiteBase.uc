@@ -1,15 +1,19 @@
 /*******************************************************************************
     TestSuiteBase
+<p>
     ...
-
-    Written by: Michiel "El Muerte" Hendriks <elmuerte@drunksnipers.com>
-
-    UsUnit Testing Framework
+</p>
+<p>
+    Written by: Michiel "El Muerte" Hendriks &lt;elmuerte@drunksnipers.com&gt;
+</p>
+<p>
+    UsUnit Testing Framework -
     Copyright (C) 2005, Michiel "El Muerte" Hendriks
+</p>
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: TestSuiteBase.uc,v 1.10 2005/09/07 11:50:18 elmuerte Exp $ -->
+    <!-- $Id: TestSuiteBase.uc,v 1.11 2005/09/23 09:23:41 elmuerte Exp $ -->
 *******************************************************************************/
 
 class TestSuiteBase extends TestBase abstract;
@@ -160,7 +164,9 @@ function byte getProgress()
     return currentIndex * 100 / TestClasses.Length;
 }
 
+/** return true if the test is running */
 function bool isRunning() { return bRunning; }
+/** return true if the suite was aborted */
 function bool isAborted() { return bAborted; }
 
 defaultproperties

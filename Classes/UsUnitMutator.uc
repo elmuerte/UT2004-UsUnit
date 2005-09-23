@@ -1,16 +1,20 @@
 /*******************************************************************************
     UsUnitMutator
+<p>
     Mutator to start the test runner. It comes with a GUI. Start it with the
     console command: `mutate usunit`
-
-    Written by: Michiel "El Muerte" Hendriks <elmuerte@drunksnipers.com>
-
-    UsUnit Testing Framework
+</p>
+<p>
+    Written by: Michiel "El Muerte" Hendriks &lt;elmuerte@drunksnipers.com&gt;
+</p>
+<p>
+    UsUnit Testing Framework -
     Copyright (C) 2005, Michiel "El Muerte" Hendriks
+</p>
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: UsUnitMutator.uc,v 1.10 2005/09/06 16:16:22 elmuerte Exp $ -->
+    <!-- $Id: UsUnitMutator.uc,v 1.11 2005/09/23 09:23:41 elmuerte Exp $ -->
 *******************************************************************************/
 
 class UsUnitMutator extends Mutator;

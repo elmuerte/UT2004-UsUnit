@@ -1,15 +1,19 @@
 /*******************************************************************************
-    TestReported
+    TestReporter
+<p>
     Generates the reports
-
-    Written by: Michiel "El Muerte" Hendriks <elmuerte@drunksnipers.com>
-
-    UsUnit Testing Framework
+</p>
+<p>
+    Written by: Michiel "El Muerte" Hendriks &lt;elmuerte@drunksnipers.com&gt;
+</p>
+<p>
+    UsUnit Testing Framework -
     Copyright (C) 2005, Michiel "El Muerte" Hendriks
+</p>
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: TestReporter.uc,v 1.10 2005/09/22 13:59:21 elmuerte Exp $ -->
+    <!-- $Id: TestReporter.uc,v 1.11 2005/09/23 09:23:41 elmuerte Exp $ -->
 *******************************************************************************/
 class TestReporter extends Info config(UsUnit);
 
@@ -211,7 +215,7 @@ static event string GetDescriptionText(string PropName)
         case "bGenerateLogErrors": return default.PIDesc[0];
         case "OutputClasses": return default.PIDesc[1];
     }
-	return "";
+    return "";
 }
 
 defaultproperties

@@ -1,5 +1,6 @@
 /*******************************************************************************
     ConvertPlayInfoToHTML
+<p>
     Convert the data in a PlayInfo record to HTML data. This is a more
     generalized implementation than given by the default WebAdmin.
     This also supports array variables (with some limitations). You can use the
@@ -7,15 +8,18 @@
     Array types MUST use the CUSTOM render type (because of some bugs in the
     engine an other method isn't possible). The "extra" field in this case
     contains the same entries as in case of the TEXT render type.
-
-    Written by: Michiel "El Muerte" Hendriks <elmuerte@drunksnipers.com>
-
-    UsUnit Testing Framework
+</p>
+<p>
+    Written by: Michiel "El Muerte" Hendriks &lt;elmuerte@drunksnipers.com&gt;
+</p>
+<p>
+    UsUnit Testing Framework -
     Copyright (C) 2005, Michiel "El Muerte" Hendriks
+</p>
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: ConvertPlayInfoToHTML.uc,v 1.4 2005/09/22 13:59:21 elmuerte Exp $ -->
+    <!-- $Id: ConvertPlayInfoToHTML.uc,v 1.5 2005/09/23 09:23:40 elmuerte Exp $ -->
 *******************************************************************************/
 class ConvertPlayInfoToHTML extends Object;
 
@@ -30,10 +34,13 @@ var array<string> Results;
 /** prefix for the replacement variables */
 const PREFIX = "PI.";
 
+/** The path to the include files. This will be set by ParsePlayInfo. */
 var string IncludePath;
 
+/** If true divide the entries in groups. Assumes the PI is sorted on groups */
 var bool ShowGroups;
 
+/** true if the JavaScript code for the special numedit was already included */
 var protected bool incNumEditJS_included;
 
 /** return false to not include a variable */
@@ -124,6 +131,7 @@ function bool ParsePlayInfo(PlayInfo PI, WebResponse Response, string Path,
     return true;
 }
 
+/** default substitutions */
 function defaultSubst(PlayInfo PI, int idx, WebResponse Response)
 {
     Response.Subst(PREFIX$"ID", repl(PI.Settings[idx].SettingName, ".", "_"));
@@ -139,6 +147,7 @@ function defaultSubst(PlayInfo PI, int idx, WebResponse Response)
     Response.Subst(PREFIX$"ClassFrom", PI.Settings[idx].ClassFrom);
 }
 
+/** called when the rendertype is CHECK */
 function renderCheck(PlayInfo PI, int idx, WebResponse Response, out string result)
 {
     // no such thing as bool arrays
@@ -150,11 +159,17 @@ function renderCheck(PlayInfo PI, int idx, WebResponse Response, out string resu
     result = Response.LoadParsedUHTM(IncludePath $ incTypeCheck);
 }
 
+/** called when the rendertype is SELECT */
 function renderSelect(PlayInfo PI, int idx, WebResponse Response, out string result)
 {
     Warn("No yet implemented");
 }
 
+/**
+    called when the rendertype is TEXT, but also in case of the following array
+    types that had rendertype CUSTOM: dynamic arrays, static arrays of type: string,
+    int, float.
+*/
 function renderText(PlayInfo PI, int idx, WebResponse Response, out string result)
 {
     local array<string> entries, args;
@@ -203,6 +218,9 @@ function renderText(PlayInfo PI, int idx, WebResponse Response, out string resul
     }
 }
 
+/**
+    Handle elements that have rendertype CUSTOM.
+*/
 function bool renderCustom(PlayInfo PI, int idx, WebResponse Response, out string result)
 {
     // test for known array types
@@ -221,6 +239,9 @@ function bool renderCustom(PlayInfo PI, int idx, WebResponse Response, out strin
     return false;
 }
 
+/**
+    Split the UnrealEngine representation of an array back into an array
+*/
 static function SplitArray(string in, out array<string> res)
 {
     local int i;
@@ -252,6 +273,9 @@ static function SplitArray(string in, out array<string> res)
     res[res.length] = in;
 }
 
+/**
+    Construct the string representation of an array.
+*/
 function string ConstructArray(WebRequest Request, PlayInfo PI, int idx)
 {
     local string res, tmp;

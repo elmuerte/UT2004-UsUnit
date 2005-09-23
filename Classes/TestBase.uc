@@ -1,15 +1,19 @@
 /*******************************************************************************
     TestBase
+<p>
     Base class for TestSuite and TestCase to make it easier for TestRunner
-
-    Written by: Michiel "El Muerte" Hendriks <elmuerte@drunksnipers.com>
-
-    UsUnit Testing Framework
+</p>
+<p>
+    Written by: Michiel "El Muerte" Hendriks &lt;elmuerte@drunksnipers.com&gt;
+</p>
+<p>
+    UsUnit Testing Framework -
     Copyright (C) 2005, Michiel "El Muerte" Hendriks
+</p>
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: TestBase.uc,v 1.13 2005/09/22 13:59:21 elmuerte Exp $ -->
+    <!-- $Id: TestBase.uc,v 1.14 2005/09/23 09:23:41 elmuerte Exp $ -->
 *******************************************************************************/
 
 class TestBase extends Info abstract config(UsUnit);
@@ -85,5 +89,5 @@ event PreBeginPlay()
 
 defaultproperties
 {
-    USUNIT_VERSION="1.1.14"
+    USUNIT_VERSION="1.2.15"
 }

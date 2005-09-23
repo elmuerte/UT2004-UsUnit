@@ -1,15 +1,19 @@
 /*******************************************************************************
     Output_HTML
+<p>
     Writes the test results to an HTML file.
-
-    Written by: Michiel "El Muerte" Hendriks <elmuerte@drunksnipers.com>
-
-    UsUnit Testing Framework
+</p>
+<p>
+    Written by: Michiel "El Muerte" Hendriks &lt;elmuerte@drunksnipers.com&gt;
+</p>
+<p>
+    UsUnit Testing Framework -
     Copyright (C) 2005, Michiel "El Muerte" Hendriks
+</p>
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: Output_HTML.uc,v 1.7 2005/09/08 10:40:23 elmuerte Exp $ -->
+    <!-- $Id: Output_HTML.uc,v 1.8 2005/09/23 09:23:41 elmuerte Exp $ -->
 *******************************************************************************/
 
 class Output_HTML extends Output_HTMLBase config(UsUnit);

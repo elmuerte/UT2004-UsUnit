@@ -1,15 +1,19 @@
 /*******************************************************************************
     usugui_MainPage
+<p>
     Configure page
-
-    Written by: Michiel "El Muerte" Hendriks <elmuerte@drunksnipers.com>
-
-    UsUnit Testing Framework
+</p>
+<p>
+    Written by: Michiel "El Muerte" Hendriks &lt;elmuerte@drunksnipers.com&gt;
+</p>
+<p>
+    UsUnit Testing Framework -
     Copyright (C) 2005, Michiel "El Muerte" Hendriks
+</p>
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: usugui_Configure.uc,v 1.1 2005/07/23 12:49:32 elmuerte Exp $ -->
+    <!-- $Id: usugui_Configure.uc,v 1.2 2005/09/23 09:23:41 elmuerte Exp $ -->
 *******************************************************************************/
 
 class usugui_Configure extends FloatingWindow;

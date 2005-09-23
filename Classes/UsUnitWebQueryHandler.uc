@@ -1,16 +1,20 @@
 /*******************************************************************************
     UsUnitWebQueryHandler
+<p>
     WebAdmin interface for UsUnit. It allows you to run tests, configure it and
     view the results.
-
-    Written by: Michiel "El Muerte" Hendriks <elmuerte@drunksnipers.com>
-
-    UsUnit Testing Framework
+</p>
+<p>
+    Written by: Michiel "El Muerte" Hendriks &lt;elmuerte@drunksnipers.com&gt;
+</p>
+<p>
+    UsUnit Testing Framework -
     Copyright (C) 2005, Michiel "El Muerte" Hendriks
+</p>
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: UsUnitWebQueryHandler.uc,v 1.16 2005/09/22 13:59:21 elmuerte Exp $ -->
+    <!-- $Id: UsUnitWebQueryHandler.uc,v 1.17 2005/09/23 09:23:41 elmuerte Exp $ -->
 *******************************************************************************/
 
 class UsUnitWebQueryHandler extends xWebQueryHandler;
@@ -30,7 +34,9 @@ var Output_WebAdmin OutputModule;
 var string uri_css, uri_menu, uri_controls, uri_results, uri_about, uri_config,
     uri_testinfo;
 
+/** PlayInfo is used to load and show the settings */
 var PlayInfo Settings;
+/** our playinfo to HTML converter instance */
 var ConvertPlayInfoToHTML PI2HTML;
 
 static final function string GetPackageName(string FQN)

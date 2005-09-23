@@ -1,17 +1,21 @@
 /*******************************************************************************
     TestRunner
+<p>
     This will run all registered TestCases and\or TestSuites. This is actually
     an implementation of TestSuite. However, any subclass of this class
     will not be executed as an actual test.
-
-    Written by: Michiel "El Muerte" Hendriks <elmuerte@drunksnipers.com>
-
-    UsUnit Testing Framework
+</p>
+<p>
+    Written by: Michiel "El Muerte" Hendriks &lt;elmuerte@drunksnipers.com&gt;
+</p>
+<p>
+    UsUnit Testing Framework -
     Copyright (C) 2005, Michiel "El Muerte" Hendriks
+</p>
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: TestRunner.uc,v 1.12 2005/09/22 13:59:21 elmuerte Exp $ -->
+    <!-- $Id: TestRunner.uc,v 1.13 2005/09/23 09:23:41 elmuerte Exp $ -->
 *******************************************************************************/
 
 class TestRunner extends TestSuiteBase;
@@ -174,7 +178,7 @@ static event string GetDescriptionText(string PropName)
         case "fDelayedStart": return default.PIDesc[0];
         case "bBreakOnFail": return default.PIDesc[1];
     }
-	return "";
+    return "";
 }
 
 defaultproperties
