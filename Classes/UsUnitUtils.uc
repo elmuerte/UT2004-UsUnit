@@ -3,16 +3,20 @@
 
 /*******************************************************************************
     UsUnitUtils
+<p>
     Utility class
-
-    Written by: Michiel "El Muerte" Hendriks <elmuerte@drunksnipers.com>
-
-    UsUnit Testing Framework
+</p>
+<p>
+    Written by: Michiel "El Muerte" Hendriks &lt;elmuerte@drunksnipers.com&gt;
+</p>
+<p>
+    UsUnit Testing Framework -
     Copyright (C) 2005, Michiel "El Muerte" Hendriks
+</p>
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: UsUnitUtils.uc,v 1.22 2005/09/23 09:23:41 elmuerte Exp $ -->
+    <!-- $Id: UsUnitUtils.uc,v 1.23 2005/09/24 11:20:51 elmuerte Exp $ -->
 *******************************************************************************/
 
 class UsUnitUtils extends Object config(UsUnit);
