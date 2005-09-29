@@ -13,7 +13,7 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: TestReporter.uc,v 1.11 2005/09/23 09:23:41 elmuerte Exp $ -->
+    <!-- $Id: TestReporter.uc,v 1.12 2005/09/29 10:34:47 elmuerte Exp $ -->
 *******************************************************************************/
 class TestReporter extends Info config(UsUnit);
 
@@ -205,7 +205,7 @@ static function FillPlayInfo(PlayInfo PlayInfo)
 {
     super.FillPlayInfo(PlayInfo);
     PlayInfo.AddSetting("Test Reporter", "bGenerateLogErrors", default.PIText[0], 0, 1, "CHECK");
-    PlayInfo.AddSetting("Test Reporter", "OutputClasses", default.PIText[0], 0, 1, "CUSTOM");
+    PlayInfo.AddSetting("Test Reporter", "OutputClasses", default.PIText[1], 0, 1, "CUSTOM");
 }
 
 static event string GetDescriptionText(string PropName)

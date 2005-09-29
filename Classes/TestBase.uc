@@ -13,7 +13,7 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: TestBase.uc,v 1.14 2005/09/23 09:23:41 elmuerte Exp $ -->
+    <!-- $Id: TestBase.uc,v 1.15 2005/09/29 10:34:47 elmuerte Exp $ -->
 *******************************************************************************/
 
 class TestBase extends Info abstract config(UsUnit);
@@ -89,5 +89,5 @@ event PreBeginPlay()
 
 defaultproperties
 {
-    USUNIT_VERSION="1.2.15"
+    USUNIT_VERSION="1.2.16"
 }

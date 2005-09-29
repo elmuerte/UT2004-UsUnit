@@ -22,7 +22,7 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: ConvertPlayInfoToHTML.puc,v 1.1 2005/09/24 11:20:51 elmuerte Exp $ -->
+    <!-- $Id: ConvertPlayInfoToHTML.puc,v 1.2 2005/09/29 10:34:47 elmuerte Exp $ -->
 *******************************************************************************/
 class ConvertPlayInfoToHTML extends Object;
 
@@ -52,6 +52,26 @@ var protected bool incNumEditJS_included;
 delegate bool ShowProperty(PlayInfo PI, int idx)
 {
     return true;
+}
+
+/**
+*/
+function bool Query(WebRequest Request, WebResponse Response, string Path)
+{
+    local string inc, mime;
+    switch (Mid(Request.URI, 1))
+    {
+        case "ConvertPlayInfoToHTML":
+            inc = Request.GetVariable("inc", "");
+            mime = Request.GetVariable("mime", "text/plain");
+            if (inc != "")
+            {
+                Response.SendCachedFile(Path $ "/" $ inc, mime);
+                return true;
+            }
+            return false;
+    }
+    return false;
 }
 
 /**

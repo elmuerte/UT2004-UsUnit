@@ -17,7 +17,7 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: UsUnitWebQueryHandler.uc,v 1.18 2005/09/24 11:20:51 elmuerte Exp $ -->
+    <!-- $Id: UsUnitWebQueryHandler.uc,v 1.19 2005/09/29 10:34:47 elmuerte Exp $ -->
 *******************************************************************************/
 
 // #ifdef HAS_WEBADMIN
@@ -55,6 +55,9 @@ function bool Query(WebRequest Request, WebResponse Response)
 {
     if (Runner == none) GetTestRunner();
     if (Utils == none) GetUtils();
+    // #ifdef HAS_PLAYINFO
+    if ((PI2HTML != none) && PI2HTML.Query(Request, Response, Path $ SkinPath)) return true;
+    // #endif
     switch (Mid(Request.URI, 1))
     {
         case DefaultPage:
@@ -66,7 +69,7 @@ function bool Query(WebRequest Request, WebResponse Response)
             ShowPage(Response, uri_menu);
             return true;
         case uri_css:
-            Response.SendCachedFile(Path$"/"$uri_css, "text/css");
+            Response.SendCachedFile(Path $ SkinPath $ "/" $uri_css, "text/css");
             return true;
         case uri_controls:
             QueryControls(Request, Response);

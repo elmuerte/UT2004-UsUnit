@@ -22,7 +22,7 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: ConvertPlayInfoToHTML.uc,v 1.6 2005/09/24 11:20:51 elmuerte Exp $ -->
+    <!-- $Id: ConvertPlayInfoToHTML.uc,v 1.7 2005/09/29 10:34:47 elmuerte Exp $ -->
 *******************************************************************************/
 class ConvertPlayInfoToHTML extends Object;
 
@@ -55,6 +55,26 @@ delegate bool ShowProperty(PlayInfo PI, int idx)
 }
 
 /**
+*/
+function bool Query(WebRequest Request, WebResponse Response, string Path)
+{
+    local string inc, mime;
+    switch (Mid(Request.URI, 1))
+    {
+        case "ConvertPlayInfoToHTML":
+            inc = Request.GetVariable("inc", "");
+            mime = Request.GetVariable("mime", "text/plain");
+            if (inc != "")
+            {
+                Response.SendCachedFile(Path $ "/" $ inc, mime);
+                return true;
+            }
+            return false;
+    }
+    return false;
+}
+
+/**
     parses the playinfo to HTML (stored in the Results array, will return true
     when succesfull. If WebRequest is provided all submitted variables in the
     request will also be stored (in case they where encountered). filter can
@@ -78,7 +98,7 @@ function bool ParsePlayInfo(PlayInfo PI, WebResponse Response, string Path,
         {
             if (Request != none)
             {
-#ifdef HAS_PLAYINFO_UE25
+// #ifdef HAS_PLAYINFO_UE25
                 if (PI.Settings[i].ArrayDim >= 0)
                 {
                     NewVal = ConstructArray(Request, PI, i);
@@ -89,10 +109,10 @@ function bool ParsePlayInfo(PlayInfo PI, WebResponse Response, string Path,
                     // compose struct !?
                 }
                 else {
-#endif
+// #endif
                     NewVal = class'UTServerAdmin'.static.HTMLDecode(Request.GetVariable(PI.Settings[i].SettingName, "")); //TODO: undefined
                     PI.StoreSetting(i, NewVal, PI.Settings[i].Data);
-#ifdef HAS_PLAYINFO_UE25
+// #ifdef HAS_PLAYINFO_UE25
                 }
             }
             if (PI.Settings[i].bStruct)
@@ -100,7 +120,7 @@ function bool ParsePlayInfo(PlayInfo PI, WebResponse Response, string Path,
                 Warn("No yet implemented");
                 continue; // not supported yet?
             }
-#endif
+// #endif
 
             unparsed = false;
             NewVal = "";
@@ -113,10 +133,12 @@ function bool ParsePlayInfo(PlayInfo PI, WebResponse Response, string Path,
                     renderSelect(PI, i, Response, NewVal);
                     break;
                 case PIT_Text:
+// #ifdef HAS_PLAYINFO_UE25
                     if (PI.Settings[i].ArrayDim >= 0)
                     {
                         Warn("Using an array property with render type TEXT causes issues, use type CUSTOM (reason: bugs in the engine).");
                     }
+// #endif
                     renderText(PI, i, Response, NewVal);
                     break;
                 case PIT_Custom:
@@ -209,13 +231,13 @@ function renderText(PlayInfo PI, int idx, WebResponse Response, out string resul
         Response.Subst(PREFIX$"Range", args[1]);
     }
 
-#ifdef HAS_PLAYINFO_UE25
+// #ifdef HAS_PLAYINFO_UE25
     if (PI.Settings[idx].ArrayDim == -1)
     {
-#endif
+// #endif
         result $= Response.LoadParsedUHTM(IncludePath $ incfile);
         return;
-#ifdef HAS_PLAYINFO_UE25
+// #ifdef HAS_PLAYINFO_UE25
     }
     else {
         SplitArray(PI.Settings[idx].Value, entries);
@@ -228,7 +250,7 @@ function renderText(PlayInfo PI, int idx, WebResponse Response, out string resul
         Response.Subst(PREFIX$"Value", entries[i]);
         result $= Response.LoadParsedUHTM(IncludePath $ incfile);
     }
-#endif
+// #endif
 }
 
 /**
@@ -236,6 +258,7 @@ function renderText(PlayInfo PI, int idx, WebResponse Response, out string resul
 */
 function bool renderCustom(PlayInfo PI, int idx, WebResponse Response, out string result)
 {
+// #ifdef HAS_PLAYINFO_UE25
     // test for known array types
     if (PI.Settings[idx].ThisProp.class == class'ArrayProperty'
         || (PI.Settings[idx].ArrayDim > 0 && (
@@ -248,10 +271,12 @@ function bool renderCustom(PlayInfo PI, int idx, WebResponse Response, out strin
         renderText(PI, idx, Response, result);
         return true;
     }
+// #endif
     log("Called renderCustom for "$PI.Settings[idx].ThisProp, name);
     return false;
 }
 
+// #ifdef HAS_PLAYINFO_UE25
 /**
     Split the UnrealEngine representation of an array back into an array
 */
@@ -316,6 +341,7 @@ function string ConstructArray(WebRequest Request, PlayInfo PI, int idx)
     }
     return "("$res$")";
 }
+// #endif
 
 defaultProperties
 {
