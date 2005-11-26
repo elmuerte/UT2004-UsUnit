@@ -2,7 +2,7 @@
 <html>
 <head>
 	<title>UsUnit - <%title%></title>
-	<meta http-equiv="Content-Type" content="text/html; charset=<%charset%>">
+	<meta http-equiv="Content-Type" content="text/html; charset=<%charset%>" />
 	<link rel="stylesheet" type="text/css" href="usunit.css" />
 </head>
 <body>

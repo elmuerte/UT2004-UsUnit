@@ -17,7 +17,7 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: UsUnitWebQueryHandler.puc,v 1.2 2005/09/29 10:34:47 elmuerte Exp $ -->
+    <!-- $Id: UsUnitWebQueryHandler.puc,v 1.3 2005/11/26 21:19:17 elmuerte Exp $ -->
 *******************************************************************************/
 
 #ifdef HAS_WEBADMIN
@@ -294,7 +294,7 @@ function QueryConfig(WebRequest Request, WebResponse Response)
         Response.Subst("check_value", string(i));
         Response.Subst("check_checked", "");
         Response.Subst("check_style", "");
-        Response.Subst("check_id", string(i));
+        Response.Subst("check_id", "SelectedTests_"$string(i));
         Response.Subst("check_label", Runner.TestClasses[i].default.TestName$" (<code>"$string(Runner.TestClasses[i])$"</code>)");
         if (i > 0) Response.Subst("updown_up", "");
             else Response.Subst("updown_up", "disabled");
@@ -330,7 +330,7 @@ function QueryConfig(WebRequest Request, WebResponse Response)
         Response.Subst("check_value", Utils.KnownTestClasses[i]);
         Response.Subst("check_checked", "");
         Response.Subst("check_style", "");
-        Response.Subst("check_id", string(i));
+        Response.Subst("check_id", "KnownTests_"$string(i));
         Response.Subst("check_label", "<code>"$Utils.KnownTestClasses[i]$"</code>");
         Response.Subst("testinfo_class", Utils.KnownTestClasses[i]);
 

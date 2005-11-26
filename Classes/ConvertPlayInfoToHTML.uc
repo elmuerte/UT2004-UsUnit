@@ -22,7 +22,7 @@
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: ConvertPlayInfoToHTML.uc,v 1.7 2005/09/29 10:34:47 elmuerte Exp $ -->
+    <!-- $Id: ConvertPlayInfoToHTML.uc,v 1.8 2005/11/26 21:19:17 elmuerte Exp $ -->
 *******************************************************************************/
 class ConvertPlayInfoToHTML extends Object;
 
@@ -159,6 +159,10 @@ function bool ParsePlayInfo(PlayInfo PI, WebResponse Response, string Path,
             Results[Results.length] = Response.LoadParsedUHTM(IncludePath $ incEntry);
         }
     }
+    if (ShowGroups && (prevGroup != ""))
+    {
+        Results[Results.length] = Response.LoadParsedUHTM(IncludePath $ incGroupEnd);
+    }
     return true;
 }
 
@@ -210,7 +214,7 @@ function renderText(PlayInfo PI, int idx, WebResponse Response, out string resul
     incfile = incTypeText;
 
     defaultSubst(PI, idx, Response);
-    Response.Subst(PREFIX$"MaxLength", "");
+    Response.Subst(PREFIX$"MaxLength", "2048"); // 2048 is sort of a engine limit
     Response.Subst(PREFIX$"Size", "80");
 
     Split(PI.Settings[idx].Data, ";", args);
@@ -225,7 +229,8 @@ function renderText(PlayInfo PI, int idx, WebResponse Response, out string resul
         if (!incNumEditJS_included)
         {
             incNumEditJS_included = true;
-            Results[Results.length] = Response.LoadParsedUHTM(IncludePath $ incNumEditJS);
+            Results.insert(0, 1);
+            Results[0] = Response.LoadParsedUHTM(IncludePath $ incNumEditJS);
         }
         incfile = incTypeText_NumEdit;
         Response.Subst(PREFIX$"Range", args[1]);

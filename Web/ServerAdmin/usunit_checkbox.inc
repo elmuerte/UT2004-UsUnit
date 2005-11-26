@@ -1,1 +1,1 @@
-<span class="<%check_style%>"><input type="checkbox" name="<%check_name%>" value="<%check_value%>" <%check_checked%> id="<%check_name%>_<%check_id%>" /> <label for="<%check_name%>_<%check_id%>"><%check_label%></label></span>
+<span class="<%check_style%>"><input type="checkbox" name="<%check_name%>" value="<%check_value%>" <%check_checked%> id="<%check_id%>" /> <label for="<%check_name%>_<%check_id%>"><%check_label%></label></span>
