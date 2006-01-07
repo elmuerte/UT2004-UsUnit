@@ -8,12 +8,12 @@
 </p>
 <p>
     UsUnit Testing Framework -
-    Copyright (C) 2005, Michiel "El Muerte" Hendriks
+    Copyright (C) 2005-2006, Michiel "El Muerte" Hendriks
 </p>
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: TestBase.uc,v 1.15 2005/09/29 10:34:47 elmuerte Exp $ -->
+    <!-- $Id: TestBase.uc,v 1.16 2006/01/07 17:00:35 elmuerte Exp $ -->
 *******************************************************************************/
 
 class TestBase extends Info abstract config(UsUnit);
@@ -89,5 +89,5 @@ event PreBeginPlay()
 
 defaultproperties
 {
-    USUNIT_VERSION="1.2.16"
+    USUNIT_VERSION="1.3.17"
 }

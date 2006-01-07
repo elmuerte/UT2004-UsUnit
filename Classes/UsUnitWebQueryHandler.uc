@@ -12,12 +12,12 @@
 </p>
 <p>
     UsUnit Testing Framework -
-    Copyright (C) 2005, Michiel "El Muerte" Hendriks
+    Copyright (C) 2005-2006, Michiel "El Muerte" Hendriks
 </p>
 
     This program is free software; you can redistribute and/or modify
     it under the terms of the Lesser Open Unreal Mod License.
-    <!-- $Id: UsUnitWebQueryHandler.uc,v 1.20 2005/11/26 21:19:17 elmuerte Exp $ -->
+    <!-- $Id: UsUnitWebQueryHandler.uc,v 1.21 2006/01/07 17:00:35 elmuerte Exp $ -->
 *******************************************************************************/
 
 // #ifdef HAS_WEBADMIN
@@ -36,7 +36,7 @@ var Output_WebAdmin OutputModule;
 
 /** the urls for the various pages */
 var string uri_css, uri_menu, uri_controls, uri_results, uri_about, uri_config,
-    uri_testinfo;
+    uri_testinfo, uri_tools;
 
 // #ifdef HAS_PLAYINFO
 /** PlayInfo is used to load and show the settings */
@@ -88,6 +88,9 @@ function bool Query(WebRequest Request, WebResponse Response)
         case uri_testinfo:
             QueryTestInfo(Request, Response);
             return true;
+        case uri_tools:
+            QueryTools(Request, Response);
+            return true;
     }
     return false;
 }
@@ -101,6 +104,7 @@ function DefSubst(WebRequest Request, WebResponse Response)
     Response.Subst("uri_config",    uri_config);
     Response.Subst("uri_about",     uri_about);
     Response.Subst("uri_testinfo",  uri_testinfo);
+    Response.Subst("uri_tools",     uri_tools);
     Response.Subst("title",         "");
     Response.Subst("VERSION",       class'TestBase'.default.USUNIT_VERSION);
 }
@@ -450,6 +454,47 @@ function QueryTestInfo(WebRequest Request, WebResponse Response)
     ShowPage(Response, uri_testinfo);
 }
 
+function QueryTools(WebRequest Request, WebResponse Response)
+{
+    local array<string> Messages;
+    local string res;
+    local int i;
+
+    Response.Subst("title", "Tools");
+    if (Request.GetVariable("profiler", "") == "start")
+    {
+        Level.Game.ConsoleCommand("PROFILESCRIPT START");
+        Messages[Messages.length] = "Profiler (re)started.";
+    }
+    else if (Request.GetVariable("profiler", "") == "stop")
+    {
+        Level.Game.ConsoleCommand("PROFILESCRIPT STOP");
+        Messages[Messages.length] = "Profiler stopped.";
+    }
+    else if (Request.GetVariable("profiler", "") == "reset")
+    {
+        Level.Game.ConsoleCommand("PROFILESCRIPT RESET");
+        Messages[Messages.length] = "Profiler reset.";
+    }
+
+
+
+    res = "";
+    for (i = 0; i < Messages.length; i++)
+    {
+        res $= "<li>"$Messages[i]$"</li>";
+    }
+    if (res != "")
+    {
+        Response.Subst("message_title", "Messages");
+        Response.Subst("message_class", "messages");
+        Response.Subst("message_entries", res);
+        Response.Subst("messages", Response.LoadParsedUHTM(Path $ SkinPath $ "/" $ "usunit_messages.inc"));
+    }
+    else Response.Subst("messages", "");
+    ShowPage(Response, uri_tools);
+}
+
 function GetTestRunner()
 {
     local float OldfDelayedStart;
@@ -512,6 +557,7 @@ defaultproperties
     uri_config="usunit_config"
     uri_about="usunit_about"
     uri_testinfo="usunit_testinfo"
+    uri_tools="usunit_tools"
 }
 // #else
 // class UsUnitWebQueryHandler extends Object;
